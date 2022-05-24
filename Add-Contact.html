@@ -1,0 +1,49 @@
+form id="add-contact" onsubmit="addContactSubmit(this)">
+  <fieldset>
+    <div class="form-group">
+      <label for="first_name">First name *</label>
+      <input class="form-control form-control-sm" type="text" class="form-control" id="first_name" name="first_name"
+        placeholder="First name">
+    </div>
+
+    <div class="form-group">
+      <label for="last_name">Last name</label>
+      <input class="form-control form-control-sm" type="text" class="form-control" id="last_name" name="last_name"
+        placeholder="Last name">
+    </div>
+
+    <div class="form-group">
+      <label for="email">E-mail address *</label>
+      <input class="form-control form-control-sm" type="email" class="form-control" name="email" placeholder="email"
+        required>
+    </div>
+
+    <div class="form-group">
+      <label for="phone_number">Phone number *</label>
+      <input class="form-control form-control-sm" type="text" class="form-control" id="phone_number" name="phone_number"
+        placeholder="Phone number">
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <div class="form-group">
+      <label for="contact_group">Contact group *</label>
+      <input class="form-control form-control-sm" type="text" class="form-control" id="contact_group"
+        name="contact_group" placeholder="Contact">
+    </div>
+
+    <div class="form-group">
+      <label for="sub_group">Sub group</label>
+      <input class="form-control form-control-sm" type="text" class="form-control" id="sub_group" name="sub_group"
+        placeholder="Sub group">
+    </div>
+
+    <div class="role">
+      <label for="role">Role</label>
+      <input class="form-control form-control-sm" type="text" class="form-control" id="role" name="role"
+        placeholder="Function within contact group">
+    </div>
+  </fieldset>
+
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
