@@ -1,4 +1,4 @@
-form id="add-contact" onsubmit="addContactSubmit(this)">
+<form id="contact-add" onsubmit="contactAddSubmit(this)">
   <fieldset>
     <div class="form-group">
       <label for="first_name">First name *</label>
@@ -25,23 +25,31 @@ form id="add-contact" onsubmit="addContactSubmit(this)">
     </div>
   </fieldset>
 
+
+
   <fieldset>
     <div class="form-group">
-      <label for="contact_group">Contact group *</label>
-      <input class="form-control form-control-sm" type="text" class="form-control" id="contact_group"
-        name="contact_group" placeholder="Contact">
+      <label for="group_type">Group type *</label>
+      <input class="form-control form-control-sm" type="text" class="form-control" id="group_type"
+        name="group_type" placeholder="Group type">
     </div>
 
     <div class="form-group">
-      <label for="sub_group">Sub group</label>
+      <label for="contact_group">Corporation *</label>
+      <input class="form-control form-control-sm" type="text" class="form-control" id="contact_group"
+        name="contact_group" placeholder="Corporation">
+    </div>
+
+    <div class="form-group">
+      <label for="sub_group">Team</label>
       <input class="form-control form-control-sm" type="text" class="form-control" id="sub_group" name="sub_group"
-        placeholder="Sub group">
+        placeholder="Team">
     </div>
 
     <div class="role">
       <label for="role">Role</label>
       <input class="form-control form-control-sm" type="text" class="form-control" id="role" name="role"
-        placeholder="Function within contact group">
+        placeholder="Function">
     </div>
   </fieldset>
 

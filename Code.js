@@ -140,97 +140,41 @@ function doesContactGroupAlreadyExist(contactGroupName) {
 
 
 
-// Note dat onderstaande functies op dit moment NIET gebruikt worden
-
-function guiAlterContacts() {
-
-  //Submenu 1: add a new contact group
-  // NOTE: this only means the contact group is    added to the spreadsheet self, NOT to the Google contacts  (this only happens when updating contacts)
-   var subMenuCreateContactGroup = ui.createMenu("Create new contact")
-     .addItem("Create contact", 'newContactSearchContactGroupPrompt')
-
-
-     ui.createMenu('Alter contacts')
-       //Reference submenu
-     .addSubMenu(subMenuCreateContactGroup)
-     //  .addSeparator()
-     //  .addSubMenu(subMenuclear)  // Call submenu for updaten here
-     .addToUi()
-}
-
-
-function newContactSearchContactGroupPrompt(contactGroupExists){
-  var contactGroupofNewContact =  ui.prompt("To which contact group do you want to add the contact ?").getResponseText();
-  spreadsheet.toast(contactGroupofNewContact);
-    
-  var contactGroupExists = doesContactGroupAlreadyExist(contactGroupofNewContact);
-
-  spreadsheet.toast(contactGroupExists); 
-
-
-    if (contactGroupExists == false) {
-
-    var runAgain = false;
-    while (runAgain == false) {
- 
-     var response = ui.alert('Create new contact group ?','There is no contact group with the given name. Do you want to create a new contact group with this name (Yes) or try again to type the correct name (No) ?', ui.ButtonSet.YES_NO_CANCEL); 
-    
-
-    if (response == ui.Button.YES) {
-      runAgain = true;
-      addNewContactgroup(contactGroupofNewContact);
-      // Now the new contact group is created --> add the first credentials into there (this is already incorporated inside the function over there   (will do this later))
-} else if (response == ui.Button.NO) {
-
-  
-  // run this prompt again
-  Logger.log('Try again');
-}
-
-  else if (response == ui.Button.CANCEL) {
-    runAgain = true;
-    break;
-  }
-
-  
-
-    else if (contactGroupExists == true){
-      // Prompt with name and contact info of contact
-  }
-    }
-} 
-}
-
-// function processForm(formObject){ 
-//   var sheet = SpreadsheetApp.getActiveSheet();
-//   sheet.appendRow([formObject.first_name,
-//                 formObject.last_name,
-//                 formObject.gender,
-//                 formObject.email
-//                 //Add your new field names here
-//                 ]);
-// }
+function processForm(formObject){ 
+   var sheet = SpreadsheetApp.getActiveSheet();
+   sheet.appendRow([formObject.first_name,
+                 formObject.last_name,
+                 formObject.gender,
+                 formObject.email
+                 //Add your new field names here
+                 ]);
+ }
 
 function addContact(formObject){
-  // var credentials = ([formObject.first_name,
-  //               formObject.last_name,
-  //               formObject.email,
-  //               formObject.phone_number,
-  //               formObject.contact_group,
-  //               formObject.sub_group,
-  //               formObject.role,
-  //               formObject.contact_group,
-  //               ]);
-  //   var contactGroup = credentials[4];
+  var credentials = (
+                [formObject.first_name,
+                formObject.last_name,
+                formObject.email,
+                formObject.phone_number,
+                formObject.group_type,
+                formObject.contact_group,
+                formObject.sub_group,
+                formObject.role,
+                formObject.contact_group,
+                 ]);
+     
+     
+      var grouptypeName = credentials[4];
+      var contactGroupName = credentials[5];
+      var subGroupName = credentials[6];
 
-      var contactGroupName = "NRC";
-      var subGroupName = "Criminaliteit";
-
+      var groupTypeNamestring = grouptypeName.toString();
       var contactGroupNamestring = contactGroupName.toString();
       var subGroupNameString = subGroupName.toString();
 
-      Logger.log("COntact group is " + contactGroupName);
-      var findContactGroup = searchContactGroup(contactGroupNamestring);
+      Logger.log("Contact group is " + contactGroupName);
+      
+      var findGroupType = searchGroupedRange(contactGroupNamestring, 1);
       var foundContactGroup = findContactGroup[0];
       var contactGroupRow = findContactGroup[1];
     
@@ -301,72 +245,198 @@ function addContact(formObject){
 }
 
 
-//// Search for the contact Group: if found --> return [true, row index]. If false, return [false]
-    function  searchContactGroup(contactGroupNamestring) {
-    Logger.log(iterationContactGroupName);
-    var existingContactgroups= sheet.getRange(headerRows, 1, MaxRow);
-    var existingContactgroupsMatrix = [existingContactgroups.getValues()];
-    var existingContactGroupsArray = existingContactgroupsMatrix[0];
-    // Logger.log("Range is " + rangeExistingContactGroups);    
-    // Logger.log("Existingcontactgroupsname is " + existingContactgroupsname);
-   
-    var foundContactGroup = false;
+//// USe test function under this function to work further !!!!
+//Generic function to test all created modules
+function testsearch(){
+  
+  // For the first search, we want to start around the entire spreadsheet
+  var startRowToSearch = 1;
+  var numRowsToSearch = 100;
+  var collumnToSearch = 1;
 
-    for (var row in existingContactGroupsArray) {
-      var iterationContactGroupName = existingContactGroupsArray[row].toString();
-      
-      if (contactGroupNamestring === iterationContactGroupName) {    
-        
-        var rowofContactGroup = parseInt(row) + headerRows;
-        var indexofContactGroup = rowofContactGroup + 1;             
-        /// Create contact function here --> input : rowofcontactgroup
-        foundContactGroup = true;
-        return [foundContactGroup, indexofContactGroup];
-        }
+  var rangetosearch = sheet.getRange(startRowToSearch, collumnToSearch, numRowsToSearch)
+
+  var groupedRangeHeaders = ["Politiek", "Volt", "Campagne", "Rol"]
+
+  var collumns = [1,2,3]
+  //Declare empty array to store the found range of the grouped rows in
+  var groupedRanges = [];
+
+  //Declare empty array to store the starting rows of each found named range in
+  var startingRows = [];
+
+  //Declare empty array to store the group dapth of each found named range in
+  var groupdepths = [];
+
+  //Declare zero iteration counter
+
+  var iteration = 0;
+
+  for (var i in groupedRangeHeaders) {
+
+    groupedRangeHeader = groupedRangeHeaders[i]
+
+    Logger.log("In this iteration the grouped range header is equal to " + groupedRangeHeader)
+    //Search the grouped range for iteration ...
+    var searchGroup = searchGroupedRange(groupedRangeHeader, rangetosearch);
+
+    Logger.log("Search grouped range returns for iteration " + iteration + " that we did find the groupedrange ? " + searchGroup[0] + " With starting row number " +  searchGroup[1])
+
+    var groupedRangeFound = searchGroup[0]
+    
+    //Als search grouped range is true
+    if (groupedRangeFound == true)  {
+      //We already know the starting row of the grouped row we found
+
+      var startRowOfGroupedRange = searchGroup[1];
+      startingRows.push(startingRows);
+
+      //And now we want to search it's properties
+
+      var groupedRowProperties = propertiesGroupedRange(startRowOfGroupedRange);
+      Logger.log("Properties for iteration " + iteration + " for header " + groupedRangeHeader + " equals " + groupedRowProperties);
+
+      var groupedRangeDepth = groupedRowProperties[0];
+      groupdepths.push(groupedRangeDepth);
+
+      var rangeOfgroupedRange = groupedRowProperties[1];
+      groupedRanges.push(rangeOfgroupedRange);
+
+  ////// WE BUG UNDERNEATH: TRY TO FIND A WORKAROUND FOR THIS !!    
+
+      //The found range of the named range of this iteration than is the new range to search in the new iteration
+
+    //  var collumnToSearchInNextIteration = collumns[i]
+      var rangematrix = [rangeOfgroupedRange];
+
+      // LET OP DAT HIERONDER DIE NUL DAN WSS VAN KOLOM NAAR KOLOM MOET GAAN
+      var rangetosearch = rangematrix[0];
+
+      rangetest = rangetosearch[0];
+      Logger.log("range to search equals " + rangetosearch);
+      Logger.log("Values in range to search are " + rangetosearch.getValues() )
+     // Logger.log("range to search equals " + rangetosearch + " with values " + sheet.getRange(rangetosearch).getValues());
     }
-        if (foundContactGroup === false)
-        return [foundContactGroup];
+
+    else if (groupedRangeFound == false){
+      return;   
+  }
+   iteration = iteration + 1;
+}
+
 }
 
 
-    // Find the properties of the ContactGroup to define in another function --> [SubGroupNameString, contactGroupDepth, ]
-    function propertiesContactGroup(contactGroupRow) {             
-      // Find the Group Depth of the Contact Group (note that this should actually be one, as the contact group is the header, thus has no bigger    depth than one)
-      var contactGroupDepth = sheet.getRowGroupDepth(contactGroupRow);
-      // Find the entire rowGroup of this contact Group --> get ists values inside a mtrix
-      var rowGroupOfContactGroup = sheet.getRowGroup(contactGroupRow,contactGroupDepth);
-      var rowGroupRange = rowGroupOfContactGroup.getRange();
-      var rowGroupValuesMatrix = rowGroupRange.getValues();
-      var contactGroupLength = parseInt(rowGroupValuesMatrix.length);
-      // The ammount of contact entries within the contact Group (-1 because of the white space at the end of a contact Group)
-        
-      return [contactGroupDepth, rowGroupValuesMatrix, contactGroupLength];
+/// For testing puposes
+//// This works now !!!!!! Work further on this test function to find the position etc we need !!
+
+  function test() {
+    var groupedRangeHeaderTest = "Krant";
+    var firstRowPositionToTest = 1
+    var lastRowPositionToTest = 100
+    var collumnPositionToTest = 1
+
+    var findGroupedRange = searchGroupedRange(groupedRangeHeaderTest, firstRowPositionToTest, lastRowPositionToTest, collumnPositionToTest);
+
+    if (findGroupedRange != false){      
+      var firstRowPositionGroupedRange = findGroupedRange[0];
+      var lastRowPositionGroupedRange = findGroupedRange[1];
+      Logger.log("First row position of grouped range is" + firstRowPositionGroupedRange);
+      Logger.log("Lasr row position of grouped range is " + lastRowPositionGroupedRange);
+      Logger.log("Find grouped range equals" + findGroupedRange);
+      return [firstRowPositionGroupedRange, lastRowPositionGroupedRange]
+    }
+
+    else if (findGroupedRange == false){
+      //Als grouped range niet gevonden is --> maak een nieuwe
+      Logger.log("group header not found --> inser new group ?");
+      Logger.log("findgrouped range equals" + findGroupedRange);
+    }
+
+   }
+
+  
+
+
+      //// Search the (grouped) range that has hadder name "GroupedRangeHeader", within the range startRow, numrows, collumn
+      //// Note that in this function, we do not yet use the fact that the range is grouped to find the group
+      //// Return it's starting row number if found, return false if not found.
+      //Ensure that the groupedRangeHeader is a string !!!
+
+  function searchGroupedRange(groupedRangeHeader, firstRowPositionToSearch, lastRowPositionToSearch, collumnPositionToSearch) {  
+    // The ammount of rows in which we want to search for the header is equal to the substraction of the lastRowPosition and FirstRowPosition + 1
+    // +1 one, since we are dealing with POSITIONS here, not indices
+    var numRowsToSearch = (lastRowPositionToSearch - firstRowPositionToSearch) + 1;
+    
+    //We than get the rangeToSearch by taking:
+    //FirstRowPosition
+    //CollumnPosition
+    //NumRows
+    // --> A single collumn existing out of the collumn to search of the row positions to search
+    var rangeToSearch = sheet.getRange(firstRowPositionToSearch, collumnPositionToSearch, numRowsToSearch);
+
+    //Get the values in this range
+    var rangeToSearchValuesArrays = rangeToSearch.getValues();
+    Logger.log("Range values Matrix equals " + rangeToSearchValuesArrays);
+
+    //Range to search values Arrays contains of arrays of arrays (depicting the string we search)
+    // We wnat an array of strings to use the indexOf and lastindex of functions
+    //--> force the array of string arrays into one long array
+    //Then split it into one array of strings, at every "," in the entire arrays of the arrays of arrays
+    //(Bullshit workaround but it works :))))))
+
+    var rangeToSearchValues = String(rangeToSearchValuesMatrix).split(",");
+    Logger.log("The Values of the Range in which we will search are " + rangeToSearchValues);
+  
+    //Use indexOf to find the first index of the GroupedRangeHeader
+    var firstRowIndexGroupedHeader = rangeToSearchValues.indexOf(groupedRangeHeader);
+    Logger.log("first row index grouped header equals " + firstRowIndexGroupedHeader);
+
+    Logger.log("We are searching for the grouped range header" + groupedRangeHeader);
+    //Confirm that the first index is found by checking that the query did NOT return -1
+
+    if (firstRowIndexGroupedHeader != -1){
+    //Then use lastindex to find the last index of the GroupedRangeHeader
+    //Note that last index and first index can have the same value, if only one row with the header exists
+    var lastRowIndexOfGroupedRangeHeader = rangeToSearchValues.lastIndexOf(groupedRangeHeader);
+
+    //Convert both found indices to position by adding it to the starting position of the Rows used for the search range  
+    var firstRowPositionOfHeader = firstRowIndexGroupedHeader + firstRowPositionToSearch;
+    var lastRowPositionOfHeader = lastRowIndexOfGroupedRangeHeader + firstRowPositionToSearch;
+
+    Logger.log("We found the grouped row !")
+    return [firstRowPositionOfHeader, lastRowPositionOfHeader];
+    }
+
+    //If no first index of the header is found (and thus also no last index will be found)
+    //Return false --> when calling this function, the return statement false will indicate that a new groupedrange has to be created
+  
+  else if (firstRowIndexGroupedHeader === -1) {
+
+    Logger.log("we did not find the grouped row :(")
+    return false;
+  }
+}
+
+    // Given the starting row of a grouped range, find it's properties
+    // Note that with this function, we do use the fact that it's a grouped range in order to find its properties
+    // Return: groupdepth, GroupLength
+    function propertiesGroupedRange(startIndexGroupedRow) {             
+      // Get the groupDepth
+      var groupedRangeDepth = sheet.getRowGroupDepth(startIndexGroupedRow);
+      Logger.log("grouped range depth is " + groupedRangeDepth);
+      // Get the entire rowgroup
+      var groupedRange = sheet.getRowGroup(startIndexGroupedRow,groupedRangeDepth);
+      Logger.log("Grouped range is " + groupedRange)
+      //Get the range of the rowgroup
+      var rangeOfGroupedRange = groupedRange.getRange();
+      Logger.log("range of grouped range is " + rangeOfGroupedRange)
+      //Get the length (=numrows) of the rowgroup       
+      return [groupedRangeDepth, rangeOfGroupedRange];
   }    
      
-
-     // Note sure if understanding function will be handy or not !!
-     function findNamedRangeProperties(nameOfRange) {
-      var nameOfRange = "NRCSociologie";
-      var rangeOfInterest = SpreadsheetApp.getActiveSpreadsheet().getRangeByName(nameOfRange);
-      Logger.log("Range of interest is " + rangeOfInterest);
-      var numRowsOfRoI = rangeOfInterest.getNumRows();
-      Logger.log("Number of rows in " + nameOfRange + " is equal to " + numRowsOfRoI);
-      var numColsOfRoI = rangeOfInterest.getNumColumns();
-      Logger.log("Number of collumn in " + nameOfRange + " is equal to " + numColsOfRoI);
-      var namedRangeValues = rangeOfInterest.getValues();
-      Logger.log("Values in named range " + nameOfRange + " are equal to " + namedRangeValues);
-      // below here is a test function: delete this one !
-      var testest = expandNamedRange(nameOfRange, numRowsOfRoI, rangeOfInterest, 1);
-     }
-
-     function findRangeOfInterest(nameOfRange){
-      var rangeOfInterest = SpreadsheetApp.getActiveSpreadsheet().getRangeByName(nameOfRange);
-      Logger.log("Range of interest is " + rangeOfInterest);
-      return rangeOfInterest;
-     }
-
      function findRangeOfInterestProperties(rangeOfInterest){
-     var startRowOfROI = rangeOfInterest.getRow();
+      var startRowOfROI = rangeOfInterest.getRow();
       Logger.log("Range of interest starts at " + startRowOfROI);
       // and more properties 
       var numRowsOfRoI = rangeOfInterest.getNumRows();  
@@ -377,55 +447,8 @@ function addContact(formObject){
       return propertiesROI;
      }
 
-  
 
-    function deleteNamedRange(nameOfRange){
-    var deleteNamedrange = ss.removeNamedRange(nameOfRange);        
-    Logger.log("Deleted named range " + nameOfRange);
-    }
-
-
-
-      function createNamedRange(nameOfRange, rangeOfNamedRange){
-        var newNamedRange = ss.setNamedRange(nameOfRange, rangeOfNamedRange);
-        Logger.log("Created named Range " + nameOfRange + " with a range of " + rangeOfNamedRange);
-      }
-
-          function createRowGroup(nameOfRange, contacttGroupProperties){      
-    }
-    
-      /// We do this by first deleting the orginal named range and then recreate him with an extra number of numRowsToExpand
-     function expandNamedRange(nameOfRange, numRowsToExpand) {
-      var nameOfRange = "NRC";
-      var numRowsToExpand = 1; 
-
-      var rangeOfInterest = findRangeOfInterest(nameOfRange);
-
-      var propertiesROI = findRangeOfInterestProperties(rangeOfInterest);
-
-      var startRowOfROI = propertiesROI[0];
-      var numRowsOfRoI = propertiesROI[1];
-      
-      var newNumRowOfRoi = numRowsOfRoI + numRowsToExpand;
-      Logger.log("Number of rows in " + nameOfRange + " will become " + numRowsOfRoI);
-      var lastRowOfnewROI = startRowOfROI + newNumRowOfRoi;
-      Logger.log("The new last row of the named range " + nameOfRange + " will thus become" + lastRowOfnewROI);
-      var newRangeOfNameRange = sheet.getRange(startRowOfROI, startColContacts, newNumRowOfRoi, numColsContacts);
-      deleteNamedRange(nameOfRange);
-      createNamedRange(nameOfRange,newRangeOfNameRange);   
-     }
-
-
-
-    // NOte: now you delete all cells within the rowgroup !!
-    function deleteRowGroup(nameOfRange){    
-    var rangeOfInterest = findRangeOfInterest(nameOfRange);       
-    var deleteROI = rangeOfInterest.deleteCells();    
-}
-
-
-  
-    function propertiesOfRowGroup(nameOfRange){
+   function propertiesOfRowGroup(nameOfRange){
 
     // var nameOfRange = "NRC";
     var rangeOfInterest = findRangeOfInterest(nameOfRange);
@@ -528,15 +551,12 @@ function addContact(formObject){
             
             return [foundSubGroupInContactGroup, subGroupRowStart, subGroupDepth, subGroupLength, subGroupRowEnd];
           }
-
-
         }
   
 
 
 // If the subGroup can not be found within the specified contact group --> see if this contactgroup already exists within other contactGroups.
   function searchSubGroupInOtherContactGroups() {
-
 
   }
 
@@ -592,22 +612,6 @@ function guiAlterContactGroups() {
 
 
 
-function newContactGroupPrompt(contactGroupExists){
-  var contactGroupName =  ui.prompt("Please enter the contact group name").getResponseText();
-  spreadsheet.toast(contactGroupName);
-    
-  var contactGroupExists = doesContactGroupAlreadyExist(contactGroupName);
-
-  spreadsheet.toast(contactGroupExists);
-    if (contactGroupExists == false) {
-    
-      addNewContactgroup(contactGroupName);  
-  }
-
-    else if (contactGroupExists == true){
-  var teamalreadyexists = ui.alert('Contact group already exists', 'There already exists a contact group with the given name; try to add relevant contacts to the already existing contact group', ui.ButtonSet.OK);
-  }
-}
 
 function addNewContactgroup(contactGroupName) {
   var MaxRow = sheet.getLastRow();
@@ -620,30 +624,6 @@ function addNewContactgroup(contactGroupName) {
   addFirstContactToNewContactGroupPrompt(contactGroupName);
   var namedRange = spreadsheet.setNamedRange(contactGroupName, rangeOfGroup);
 }
-
-function addFirstContactToNewContactGroupPrompt(contactGroupName) {
-  var addNewContact = ui.alert("Add first contact ?", "New contactgroup with name " + contactGroupName + " is created. Do you want to add a first contact to this contact group ?", ui.ButtonSet.YES_NO);
-
-  if (addNewContact == ui.Button.YES) {
-  var firstContactInContactGroupRowNumber = MaxRow + 3;
-  addContactForm();
-  }
-
-  else if (addNewContact == ui.Button.NO) {
-    ui.alert("Are you sure ?", "You're about to create a new contact group which is empty. It is adviced to add a new contact now immediately, otherwise there wil be a whiteline underneath this contact group when a new contact is added.", ui.ButtonSet.YES_NO);
-     
-     if (ui.ButtonSet == ui.Button.YES){
-       ui.alert("Ok have a nice, Voltey day", ui.Button.OK);
-       return;
-     }
-    else if (ui.ButtonSet == ui.Button.NO){
-      var firstContactInContactGroupRowNumber = MaxRow + 3;
-      addContactForm();
-      
-    }    
-  }
-}
-
 
 
 // // Underneath can probably be deleted
@@ -687,6 +667,8 @@ function addFirstContactToNewContactGroupPrompt(contactGroupName) {
 // }
 
 
+
+// Underneath is all about importing the contact to google contacts
 
 
 function gUIimportcontacts() {
