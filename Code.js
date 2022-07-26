@@ -1,3 +1,7 @@
+// Link to google Spreadsheet:
+// https://docs.google.com/spreadsheets/d/1OmorzZyeV6XJW5UrYhfeu6KkyeicIK3xZfvtvJj71SY/edit#gid=0
+
+
 // This code runs but doesnt recognize group exists is true
 
 
@@ -385,7 +389,7 @@ function testsearch(){
     //Then split it into one array of strings, at every "," in the entire arrays of the arrays of arrays
     //(Bullshit workaround but it works :))))))
 
-    var rangeToSearchValues = String(rangeToSearchValuesMatrix).split(",");
+    var rangeToSearchValues = String(rangeToSearchValuesArrays).split(",");
     Logger.log("The Values of the Range in which we will search are " + rangeToSearchValues);
   
     //Use indexOf to find the first index of the GroupedRangeHeader
