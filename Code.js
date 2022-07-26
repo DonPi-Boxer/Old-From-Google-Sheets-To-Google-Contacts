@@ -335,18 +335,51 @@ function testsearch(){
 //// This works now !!!!!! Work further on this test function to find the position etc we need !!
 
   function test() {
-    var groupedRangeHeaderTest = "Krant";
-    var firstRowPositionToTest = 1
-    var lastRowPositionToTest = 100
-    var collumnPositionToTest = 1
+    // Contact groups array for testing puposes now: get here the array of the contact groups of the credentials of new contact
+    var contactGroupsArray = ["Krant", "NRC", "Sociale zaken", "lead"];
+    Logger.log("contact groups array is " + contactGroupsArray);
 
-    var findGroupedRange = searchGroupedRange(groupedRangeHeaderTest, firstRowPositionToTest, lastRowPositionToTest, collumnPositionToTest);
+    // Array consisting of the length of the number of contact groups defined in the sheet
+    var collumnPositionToTestArray = [1,2,3,4];
+
+    // For the 1st dimenstion, we want to search through the entire sheet
+    var firstRowPositionToSearch = 1;
+    var lastRowPositionToSearch = ss.getLastRow();
+    
+
+    for (var i=0; i < contactGroupsArray.length; i++){
+
+    Logger.log("In iteration " + i + " for finding row position of new contact")
+
+    var contactGroupDimensionToSearch = contactGroupsArray[i];
+    var collumnPositionToSearch = collumnPositionToTestArray[i];
+    
+    Logger.log("Searching in contact group dimension " + contactGroupDimensionToSearch + " at collumn position " + collumnPositionToSearch);
+    Logger.log("First row to search is " + firstRowPositionToSearch + " last row position to search is " + lastRowPositionToSearch);
+
+    var rowRangeFoundGroup = findPositionOfNewContact(contactGroupDimensionToSearch, firstRowPositionToSearch, lastRowPositionToSearch, collumnPositionToSearch);
+    
+    Logger.log(rowRangeFoundGroup);
+
+    //Update the first and last row position to search for the next iteration
+
+    firstRowPositionToSearch = rowRangeFoundGroup[0];
+    lastRowPositionToSearch = rowRangeFoundGroup[1];
+    }
+  }
+
+  function findPositionOfNewContact(contactgroupDimension, firstRowPositionToSearch, lastRowPositionToSearch, collumnPositionToSearch) {
+  
+    
+
+      
+    var findGroupedRange = searchGroupedRange(contactgroupDimension, firstRowPositionToSearch, lastRowPositionToSearch, collumnPositionToSearch);
 
     if (findGroupedRange != false){      
       var firstRowPositionGroupedRange = findGroupedRange[0];
       var lastRowPositionGroupedRange = findGroupedRange[1];
-      Logger.log("First row position of grouped range is" + firstRowPositionGroupedRange);
-      Logger.log("Lasr row position of grouped range is " + lastRowPositionGroupedRange);
+      Logger.log("First row position of grouped range dimension" + contactgroupDimension + " is " + firstRowPositionGroupedRange);
+      Logger.log("Last row position of grouped range dimension  is " + lastRowPositionGroupedRange);
       Logger.log("Find grouped range equals" + findGroupedRange);
       return [firstRowPositionGroupedRange, lastRowPositionGroupedRange]
     }
@@ -356,8 +389,9 @@ function testsearch(){
       Logger.log("group header not found --> inser new group ?");
       Logger.log("findgrouped range equals" + findGroupedRange);
     }
-
-   }
+  }
+  
+   
 
   
 
