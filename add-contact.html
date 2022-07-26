@@ -1,4 +1,18 @@
-<form id="contact-add" onsubmit="contactAddSubmit(this)">
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+    function addContactSubmit(formObject) {
+    // NOte that this google.script.run should run the function highest in hierarchy for adding the contact *\
+    var formObject = document.getElementById('add-contact');
+    google.script.run.getCredentialOfForm(formObject)
+  };
+  </script>
+</head>
+<body>
+
+
+<form id="add-contact" onsubmit="addContactSubmint(this)">
   <fieldset>
     <div class="form-group">
       <label for="first_name">First name *</label>
@@ -29,25 +43,25 @@
 
   <fieldset>
     <div class="form-group">
-      <label for="group_type">Group type *</label>
+      <label for="CGroup_1">Group type *</label>
       <input class="form-control form-control-sm" type="text" class="form-control" id="group_type"
         name="group_type" placeholder="Group type">
     </div>
 
     <div class="form-group">
-      <label for="contact_group">Corporation *</label>
+      <label for="CGroup_2">Corporation *</label>
       <input class="form-control form-control-sm" type="text" class="form-control" id="contact_group"
         name="contact_group" placeholder="Corporation">
     </div>
 
     <div class="form-group">
-      <label for="sub_group">Team</label>
+      <label for="CGroup_3">Team</label>
       <input class="form-control form-control-sm" type="text" class="form-control" id="sub_group" name="sub_group"
         placeholder="Team">
     </div>
 
-    <div class="role">
-      <label for="role">Role</label>
+    <div class="form-group">
+      <label for="CGroup_4">Role</label>
       <input class="form-control form-control-sm" type="text" class="form-control" id="role" name="role"
         placeholder="Function">
     </div>
@@ -55,3 +69,5 @@
 
   <button type="submit" class="btn btn-primary">Submit</button>
 </form>
+</body>
+</html>

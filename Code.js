@@ -23,64 +23,11 @@
 
 
 
-//creeer totaal menu en zet de submenu's er in
-
-
-
-function onOpen(e) {
-
-  setAllGUIs()
-
-}
-
-
-function setAllGUIs() {
-   //Submenu 2: Alter contact group. That is, alter name, function etc etc
-   //Submenu 3: Delete an existing contact group
-   // GuiAlterContacts()
-   // guiAlterContacts()
-    // guiTestWidget()
-    guiDialog()
-    guiAlterContactGroups()
-    gUIimportcontacts()
-
-}
-
-
-
-function guiDialog() {
-
-  //Submenu 1: add a new contact group
-  // NOTE: this only means the contact group is    added to the spreadsheet self, NOT to the Google contacts  (this only happens when updating contacts)
-   var subMenuShowDialogSidebar = ui.createMenu("Add contact")
-     .addItem("Add new contact", 'addContactForm')
-     ui.createMenu('Contacts')
-       //Reference submenu
-     .addSubMenu(subMenuShowDialogSidebar)
-     //  .addSeparator()
-     //  .addSubMenu(subMenuclear)  // Call submenu for updaten here
-     .addToUi()
-}
-
-
-//OPEN THE FORM IN SIDEBAR 
-function addContactForm() {      
-  var form = HtmlService.createTemplateFromFile('Index').evaluate().setTitle('Contact Details');
-  SpreadsheetApp.getUi().showSidebar(form);
-}
-
-
-
-//INCLUDE HTML PARTS, EG. JAVASCRIPT, CSS, OTHER HTML FILES
-function include(filename) {
-  return HtmlService.createHtmlOutputFromFile(filename).getContent();
-}
-
 
 // Declare all constants
 
 var contactgroupIndex = 0;
-var subgroupIndex = 1;
+var contactGroupIndex = 1;
 var positionIndex = 2;
 var firstNameIndex = 3;
 var lastNameIndex = 4;
@@ -105,236 +52,7 @@ var existingContactgroups = SpreadsheetApp.getActiveSheet().getRange(1, contactg
 
 // Indices of collum numbers of the input
 
-
-function doesContactGroupAlreadyExist(contactGroupName) {
-
-  spreadsheet.toast("zit nu in goes group exist met group name" + contactGroupName);
-  // Declare relevant variables
-  // check if contact group already exists
-  // Redclare datarange and data etc in case of multilation in between calling of script and opening of the sheet
-  var dataRange = sheet.getDataRange();
-  var data = dataRange.getValues();
-  var MaxRow = sheet.getLastRow();
-  var dataRange = sheet.getDataRange();
-  var data = dataRange.getValues();     // Read all data
-  data.splice(0,headerRows);            // Remove header rows
-  
-  var contactGroupExists = false;
-
-
-  Logger.log("Input does exist is " + contactGroupName)
-  for (var i in existingContactgroups) {
-    
-
-    // Note: maak onderstaande onafhankelijk van hoofdletters
-    // If a team already exists with the given name; prompt this
-    if (existingContactgroups[i] == contactGroupName) {
-    spreadsheet.toast("This team already exists");
-
-  contactGroupExists = true;
-    break;
-    // NOw put out a prompt: THIS CONTACT GROUP ALREADY EXISTS G
-  }
-
-
-  }
-  spreadsheet.toast(contactGroupExists);
-  return contactGroupExists;
-}
-
-
-
-function processForm(formObject){ 
-   var sheet = SpreadsheetApp.getActiveSheet();
-   sheet.appendRow([formObject.first_name,
-                 formObject.last_name,
-                 formObject.gender,
-                 formObject.email
-                 //Add your new field names here
-                 ]);
- }
-
-function addContact(formObject){
-  var credentials = (
-                [formObject.first_name,
-                formObject.last_name,
-                formObject.email,
-                formObject.phone_number,
-                formObject.group_type,
-                formObject.contact_group,
-                formObject.sub_group,
-                formObject.role,
-                formObject.contact_group,
-                 ]);
-     
-     
-      var grouptypeName = credentials[4];
-      var contactGroupName = credentials[5];
-      var subGroupName = credentials[6];
-
-      var groupTypeNamestring = grouptypeName.toString();
-      var contactGroupNamestring = contactGroupName.toString();
-      var subGroupNameString = subGroupName.toString();
-
-      Logger.log("Contact group is " + contactGroupName);
-      
-      var findGroupType = searchGroupedRange(contactGroupNamestring, 1);
-      var foundContactGroup = findContactGroup[0];
-      var contactGroupRow = findContactGroup[1];
-    
-        if (foundContactGroup === false){
-          // Prompt here: no contact group existst with this name --> want to add one ? --> probably yess
-        
-        }
-        else if (foundContactGroup === true && subGroupName != ""){
-          Logger.log("Contact group found is " + foundContactGroup);
-          Logger.log("the function found contact group row to be " + contactGroupRow);
-          ///find subgroup in contact group function here
-          var contactGroupPorepties = propertiesContactGroup(contactGroupRow);
-          var contactGroupDepth = contactGroupPorepties[0];
-          var rowGroupValuesMatrix = contactGroupPorepties[1];
-          var contactGroupLength = contactGroupPorepties[2];
-
-          Logger.log("Contact group depth is " + contactGroupDepth);
-          Logger.log("rowgroup values matrix is " + rowGroupValuesMatrix);
-          Logger.log("Ammount of contacts in the contact group is " + contactGroupLength);
-
-          var subGroupInContactGroup = searchSubGroupWithinContactGroup(
-          contactGroupRow, 
-            contactGroupDepth, 
-              rowGroupValuesMatrix, 
-                contactGroupLength,   
-                  subGroupNameString); 
-
-          var subGroupFoundInContactGroup = subGroupInContactGroup[0];
-          var rowSubGroupInContactGroup = subGroupInContactGroup[1];
-          var rowOfNewContact = parseInt(rowSubGroupInContactGroup + 2);
-          var subGroupDepth = subGroupInContactGroup[2];
-          var subGroupValuesMatrix = subGroupInContactGroup[3];
-          var subGroupLength = subGroupInContactGroup[4];
-
-          // Also search if the given role already exists within the subgroup ...
-          //           var roleInSubGroupContactGroup = searchSubGroupWithinContactGroup(
-          // contactGroupRow, 
-          //   contactGroupDepth, 
-          //     rowGroupValuesMatrix, 
-          //       contactGroupLength,   
-          //         subGroupNameString); 
-
-          Logger.log("Sub group found in contact group is " + subGroupFoundInContactGroup);
-            
-            // Add: and role is not found within the subgroup..
-            if (subGroupFoundInContactGroup == true ){
-              Logger.log("Will add a new contact in ConctactGroup " + contactGroupNamestring + 
-              " In Subgroup " + subGroupNameString + " In row number " + rowOfNewContact);
-
-              Logger.log("Sub group depth is " + subGroupDepth);
-              Logger.log("Sub group values matrixx is " + subGroupValuesMatrix);
-              Logger.log("Sub group length found in contact group is " + subGroupLength);
-
-              expandSubGroup(subGroupNameString, rowOfNewContact);
-              //addcontact(credentials, rowOfNewContact);
-              }
-
-              else if (subGroupFoundInContactGroup == false){
-              Logger.log("Subgroup is not found within this contact group: what to do now ?")
-              /// --> create new sub group within the contact group
-
-              // Search Contact group within entire sheets
-              }
-            }   
-        // else if (foundContactGroup === true && subGroupName == ""){
-      
-            // Prompt: are you sure you dont want to add a sub group ?
-}
-
-
-//// USe test function under this function to work further !!!!
-//Generic function to test all created modules
-function testsearch(){
-  
-  // For the first search, we want to start around the entire spreadsheet
-  var startRowToSearch = 1;
-  var numRowsToSearch = 100;
-  var collumnToSearch = 1;
-
-  var rangetosearch = sheet.getRange(startRowToSearch, collumnToSearch, numRowsToSearch)
-
-  var groupedRangeHeaders = ["Politiek", "Volt", "Campagne", "Rol"]
-
-  var collumns = [1,2,3]
-  //Declare empty array to store the found range of the grouped rows in
-  var groupedRanges = [];
-
-  //Declare empty array to store the starting rows of each found named range in
-  var startingRows = [];
-
-  //Declare empty array to store the group dapth of each found named range in
-  var groupdepths = [];
-
-  //Declare zero iteration counter
-
-  var iteration = 0;
-
-  for (var i in groupedRangeHeaders) {
-
-    groupedRangeHeader = groupedRangeHeaders[i]
-
-    Logger.log("In this iteration the grouped range header is equal to " + groupedRangeHeader)
-    //Search the grouped range for iteration ...
-    var searchGroup = searchGroupedRange(groupedRangeHeader, rangetosearch);
-
-    Logger.log("Search grouped range returns for iteration " + iteration + " that we did find the groupedrange ? " + searchGroup[0] + " With starting row number " +  searchGroup[1])
-
-    var groupedRangeFound = searchGroup[0]
-    
-    //Als search grouped range is true
-    if (groupedRangeFound == true)  {
-      //We already know the starting row of the grouped row we found
-
-      var startRowOfGroupedRange = searchGroup[1];
-      startingRows.push(startingRows);
-
-      //And now we want to search it's properties
-
-      var groupedRowProperties = propertiesGroupedRange(startRowOfGroupedRange);
-      Logger.log("Properties for iteration " + iteration + " for header " + groupedRangeHeader + " equals " + groupedRowProperties);
-
-      var groupedRangeDepth = groupedRowProperties[0];
-      groupdepths.push(groupedRangeDepth);
-
-      var rangeOfgroupedRange = groupedRowProperties[1];
-      groupedRanges.push(rangeOfgroupedRange);
-
-  ////// WE BUG UNDERNEATH: TRY TO FIND A WORKAROUND FOR THIS !!    
-
-      //The found range of the named range of this iteration than is the new range to search in the new iteration
-
-    //  var collumnToSearchInNextIteration = collumns[i]
-      var rangematrix = [rangeOfgroupedRange];
-
-      // LET OP DAT HIERONDER DIE NUL DAN WSS VAN KOLOM NAAR KOLOM MOET GAAN
-      var rangetosearch = rangematrix[0];
-
-      rangetest = rangetosearch[0];
-      Logger.log("range to search equals " + rangetosearch);
-      Logger.log("Values in range to search are " + rangetosearch.getValues() )
-     // Logger.log("range to search equals " + rangetosearch + " with values " + sheet.getRange(rangetosearch).getValues());
-    }
-
-    else if (groupedRangeFound == false){
-      return;   
-  }
-   iteration = iteration + 1;
-}
-
-}
-
-
-/// For testing puposes
-//// This works now !!!!!! Work further on this test function to find the position etc we need !!
-
-  function test() {
+function test() {
     // Contact groups array for testing puposes now: get here the array of the contact groups of the credentials of new contact
     var contactGroupsArray = ["Krant", "NRC", "Sociale zaken", "lead"];
     Logger.log("contact groups array is " + contactGroupsArray);
@@ -357,27 +75,25 @@ function testsearch(){
     Logger.log("Searching in contact group dimension " + contactGroupDimensionToSearch + " at collumn position " + collumnPositionToSearch);
     Logger.log("First row to search is " + firstRowPositionToSearch + " last row position to search is " + lastRowPositionToSearch);
 
-    var rowRangeFoundGroup = findPositionOfNewContact(contactGroupDimensionToSearch, firstRowPositionToSearch, lastRowPositionToSearch, collumnPositionToSearch);
+    var rowRangeFoundcontactGroup = findPositionOfNewContact(contactGroupDimensionToSearch, firstRowPositionToSearch, lastRowPositionToSearch, collumnPositionToSearch);
     
     Logger.log(rowRangeFoundGroup);
 
     //Update the first and last row position to search for the next iteration
 
-    firstRowPositionToSearch = rowRangeFoundGroup[0];
-    lastRowPositionToSearch = rowRangeFoundGroup[1];
+    firstRowPositionToSearch = rowRangeFoundcontactGroup[0];
+    lastRowPositionToSearch = rowRangeFoundcontactGroup[1];
     }
   }
 
   function findPositionOfNewContact(contactgroupDimension, firstRowPositionToSearch, lastRowPositionToSearch, collumnPositionToSearch) {
   
-    
 
-      
-    var findGroupedRange = searchGroupedRange(contactgroupDimension, firstRowPositionToSearch, lastRowPositionToSearch, collumnPositionToSearch);
+    var contactGroupRange = searchContactGroupRange(contactgroupDimension, firstRowPositionToSearch, lastRowPositionToSearch, collumnPositionToSearch);
 
     if (findGroupedRange != false){      
-      var firstRowPositionGroupedRange = findGroupedRange[0];
-      var lastRowPositionGroupedRange = findGroupedRange[1];
+      var firstRowPositionGroupedRange = contactGroupRange[0];
+      var lastRowPositionGroupedRange = contactGroupRange[1];
       Logger.log("First row position of grouped range dimension" + contactgroupDimension + " is " + firstRowPositionGroupedRange);
       Logger.log("Last row position of grouped range dimension  is " + lastRowPositionGroupedRange);
       Logger.log("Find grouped range equals" + findGroupedRange);
@@ -389,11 +105,7 @@ function testsearch(){
       Logger.log("group header not found --> inser new group ?");
       Logger.log("findgrouped range equals" + findGroupedRange);
     }
-  }
-  
-   
-
-  
+  } 
 
 
       //// Search the (grouped) range that has hadder name "GroupedRangeHeader", within the range startRow, numrows, collumn
@@ -401,7 +113,7 @@ function testsearch(){
       //// Return it's starting row number if found, return false if not found.
       //Ensure that the groupedRangeHeader is a string !!!
 
-  function searchGroupedRange(groupedRangeHeader, firstRowPositionToSearch, lastRowPositionToSearch, collumnPositionToSearch) {  
+  function searchcontactGroupRange(contactGroupHeader, firstRowPositionToSearch, lastRowPositionToSearch, collumnPositionToSearch) {  
     // The ammount of rows in which we want to search for the header is equal to the substraction of the lastRowPosition and FirstRowPosition + 1
     // +1 one, since we are dealing with POSITIONS here, not indices
     var numRowsToSearch = (lastRowPositionToSearch - firstRowPositionToSearch) + 1;
@@ -427,19 +139,19 @@ function testsearch(){
     Logger.log("The Values of the Range in which we will search are " + rangeToSearchValues);
   
     //Use indexOf to find the first index of the GroupedRangeHeader
-    var firstRowIndexGroupedHeader = rangeToSearchValues.indexOf(groupedRangeHeader);
-    Logger.log("first row index grouped header equals " + firstRowIndexGroupedHeader);
+    var firstRowIndexcontactGroupDimension = rangeToSearchValues.indexOf(contactGroupHeader);
+    Logger.log("first row index grouped header equals " + firstRowIndexcontactGroupDimension);
 
-    Logger.log("We are searching for the grouped range header" + groupedRangeHeader);
+    Logger.log("We are searching for the grouped range header" + contactGroupHeader);
     //Confirm that the first index is found by checking that the query did NOT return -1
 
-    if (firstRowIndexGroupedHeader != -1){
+    if (firstRowIndexcontactGroupDimension != -1){
     //Then use lastindex to find the last index of the GroupedRangeHeader
     //Note that last index and first index can have the same value, if only one row with the header exists
-    var lastRowIndexOfGroupedRangeHeader = rangeToSearchValues.lastIndexOf(groupedRangeHeader);
+    var lastRowIndexOfGroupedRangeHeader = rangeToSearchValues.lastIndexOf(Header);
 
     //Convert both found indices to position by adding it to the starting position of the Rows used for the search range  
-    var firstRowPositionOfHeader = firstRowIndexGroupedHeader + firstRowPositionToSearch;
+    var firstRowPositionOfHeader = firstRowIndexcontactGroupDimension + firstRowPositionToSearch;
     var lastRowPositionOfHeader = lastRowIndexOfGroupedRangeHeader + firstRowPositionToSearch;
 
     Logger.log("We found the grouped row !")
@@ -447,14 +159,17 @@ function testsearch(){
     }
 
     //If no first index of the header is found (and thus also no last index will be found)
-    //Return false --> when calling this function, the return statement false will indicate that a new groupedrange has to be created
+    //Return false --> when calling this function, the return statement false will indicate that a new contactGroup has to be created
   
-  else if (firstRowIndexGroupedHeader === -1) {
+  else if (firstRowIndexcontactGroupDimension === -1) {
 
     Logger.log("we did not find the grouped row :(")
     return false;
   }
 }
+
+
+
 
     // Given the starting row of a grouped range, find it's properties
     // Note that with this function, we do use the fact that it's a grouped range in order to find its properties
@@ -508,6 +223,8 @@ function testsearch(){
     return rowGroupProperties;
     }
 
+
+
     //Note: now you just remove the rowgroup only !!!
     function removeRowGroup(nameOfRange, rowGroupDepth){
 
@@ -530,7 +247,6 @@ function testsearch(){
 
      }
 
-
     function moveROItoNewPosition(nameOfRange){
     var rangeOfInterest = findRangeOfInterest(nameOfRange);    
     var propertiesROI = findRangeOfInterestProperties(rangeOfInterest);
@@ -541,66 +257,155 @@ function testsearch(){
 
 
 
-    // function getRangeList(){
-
-    //  }
 
 
+function addNewContactgroup(contactGroupName) {
+  var MaxRow = sheet.getLastRow();
+  // (include a white row between the new and the adjacent contact group
+  var rowNewContactgroup = MaxRow + 2;
+  var newContactGroupAdd = sheet.getRange(rowNewContactgroup,contactgroupIndex+1).setValue(contactGroupName).setFontWeight("bold");
+  // Create a range group for the new contact group. The Range which can inklappen we want underneath the title of this contact group (hece rownewcontactgroup +1)
+  var rangeOfGroup = SpreadsheetApp.getActiveSheet().getRange(rowNewContactgroup+1,1,1);
+  var group = rangeOfGroup.activate().shiftRowGroupDepth(1);
+  addFirstContactToNewContactGroupPrompt(contactGroupName);
+  var namedRange = spreadsheet.setNamedRange(contactGroupName, rangeOfGroup);
+}
+
+
+
+function addContact(formObject){
+  var credentials = (
+                [formObject.first_name,
+                formObject.last_name,
+                formObject.email,
+                formObject.phone_number,
+                formObject.group_type,
+                formObject.contact_group,
+                formObject.sub_group,
+                formObject.role,
+                formObject.contact_group,
+                 ]);
+     
+     
+      var grouptypeName = credentials[4];
+      var contactGroupName = credentials[5];
+      var contactGroupName = credentials[6];
+
+      var groupTypeNamestring = grouptypeName.toString();
+      var contactGroupNamestring = contactGroupName.toString();
+      var contactGroupNameString = contactGroupName.toString();
+
+      Logger.log("Contact group is " + contactGroupName);
+      
+      var findGroupType = searchGroupedRange(contactGroupNamestring, 1);
+      var foundContactGroup = findContactGroup[0];
+      var contactGroupRow = findContactGroup[1];
     
-
-     // Note: make this into a generic function for findig a rowgroup within any rowgroup
-    function searchSubGroupWithinContactGroup(contactGroupRow, contactGroupDepth, rowGroupValuesMatrix, contactGroupLength, subGroupNameString) {
-
-      // Make sure the subGroupName is a string         
-      var foundSubGroupInContactGroup = false;
-
-    // var subGroupsInContactGroup = sheet.getRange()
-    // var existingContactgroupsMatrix = [existingContactgroups.getValues()];
-    // var existingContactGroupsArray = existingContactgroupsMatrix[0];
-
-      // First: search if this SUbGroup already existst within the Given COntact group (if so --> append Contact here here)
-      for (i=0 ; i < contactGroupLength; i++) {
-        // Get the entire Row of the row in this iteration
-        contactGroupRowValues = rowGroupValuesMatrix[i];
-        // Get the values belonging to the index of the SubGroup
-        var iterationSubGroupName = contactGroupRowValues[subgroupIndex];
-          if (subGroupNameString === iterationSubGroupName) {
-            foundSubGroupInContactGroup = true;
-            Logger.log("true")
-            var subGroupRowStart = parseInt(i) + contactGroupRow + 1;
-            Logger.log("SubgroupRowStart is " + subGroupRowStart);    
-            break               
-            }  
-             }
-
-          if (foundSubGroupInContactGroup = true) {
-            var subGroupDepth = sheet.getRowGroupDepth(subGroupRowStart);
-            var rowGroupOfSubGroup = sheet.getRowGroup(subGroupRowStart,subGroupDepth); 
-            Logger.log("row group of subgroup is " + rowGroupOfSubGroup);      
-            var rowGroupOfSubGroupRange = rowGroupOfSubGroup.getRange();
-            Logger.log("range is equal to " + rowGroupOfSubGroupRange);   
-            var subGroupValues = rowGroupOfSubGroupRange.getValues();  
-            Logger.log("SUbgroupvalues is equal to " + subGroupValues);
-            var subGroupLength = subGroupValues.length;           
-            Logger.log("Sub Group length is " + subGroupLength); 
-            // Note this denotes the last row of the sub group (so this includes possible whitespaces)
-            var subGroupRowEnd = subGroupRowStart + subGroupLength; 
-            Logger.log("Sub Group Row end is " + subGroupRowEnd);
-            
-            return [foundSubGroupInContactGroup, subGroupRowStart, subGroupDepth, subGroupLength, subGroupRowEnd];
-          }
+        if (foundContactGroup === false){
+          // Prompt here: no contact group existst with this name --> want to add one ? --> probably yess
+        
         }
-  
+        else if (foundContactGroup === true && contactGroupName != ""){
+          Logger.log("Contact group found is " + foundContactGroup);
+          Logger.log("the function found contact group row to be " + contactGroupRow);
+          ///find contactGroup in contact group function here
+          var contactGroupPorepties = propertiesContactGroup(contactGroupRow);
+          var contactGroupDepth = contactGroupPorepties[0];
+          var rowGroupValuesMatrix = contactGroupPorepties[1];
+          var contactGroupLength = contactGroupPorepties[2];
+
+          Logger.log("Contact group depth is " + contactGroupDepth);
+          Logger.log("rowgroup values matrix is " + rowGroupValuesMatrix);
+          Logger.log("Ammount of contacts in the contact group is " + contactGroupLength);
+
+          var contactGroupInContactGroup = searchcontactGroupWithinContactGroup(
+          contactGroupRow, 
+            contactGroupDepth, 
+              rowGroupValuesMatrix, 
+                contactGroupLength,   
+                  contactGroupNameString); 
+
+          var contactGroupFoundInContactGroup = contactGroupInContactGroup[0];
+          var rowcontactGroupInContactGroup = contactGroupInContactGroup[1];
+          var rowOfNewContact = parseInt(rowcontactGroupInContactGroup + 2);
+          var contactGroupDepth = contactGroupInContactGroup[2];
+          var contactGroupValuesMatrix = contactGroupInContactGroup[3];
+          var contactGroupLength = contactGroupInContactGroup[4];
+
+          // Also search if the given role already exists within the contactGroup ...
+          //           var roleIncontactGroupContactGroup = searchcontactGroupWithinContactGroup(
+          // contactGroupRow, 
+          //   contactGroupDepth, 
+          //     rowGroupValuesMatrix, 
+          //       contactGroupLength,   
+          //         contactGroupNameString); 
+
+          Logger.log("Sub group found in contact group is " + contactGroupFoundInContactGroup);
+            
+            // Add: and role is not found within the contactGroup..
+            if (contactGroupFoundInContactGroup == true ){
+              Logger.log("Will add a new contact in ConctactGroup " + contactGroupNamestring + 
+              " In contactGroup " + contactGroupNameString + " In row number " + rowOfNewContact);
+
+              Logger.log("Sub group depth is " + contactGroupDepth);
+              Logger.log("Sub group values matrixx is " + contactGroupValuesMatrix);
+              Logger.log("Sub group length found in contact group is " + contactGroupLength);
+
+              expandcontactGroup(contactGroupNameString, rowOfNewContact);
+              //addcontact(credentials, rowOfNewContact);
+              }
+
+              else if (contactGroupFoundInContactGroup == false){
+              Logger.log("contactGroup is not found within this contact group: what to do now ?")
+              /// --> create new sub group within the contact group
+
+              // Search Contact group within entire sheets
+              }
+            }   
+        // else if (foundContactGroup === true && contactGroupName == ""){
+      
+            // Prompt: are you sure you dont want to add a sub group ?
+}
 
 
-// If the subGroup can not be found within the specified contact group --> see if this contactgroup already exists within other contactGroups.
-  function searchSubGroupInOtherContactGroups() {
 
+
+
+
+function importContacts() {ContactsApp.createContac
+  for (var i = 0; i < data.length; i++) {
+    var row = data[i];
+    var firstName = row[firstNameIndex];
+    var lastName = row[lastNameIndex];
+    var emailAdd = row[emailIndex];
+    var teamAdd = row[contactgroupIndex];
+    var positionAdd = row[positionIndex];
+    var mobileAdd = row[mobileIndex];
+    var statusRow = row[statusIndex];
+
+    if (statusRow != "Uploaded") {
+      var contact = ContactsApp.createContact(firstName, lastName, emailAdd);
+
+      if (mobileAdd != "" ) {
+        contact.addPhone(ContactsApp.Field.MOBILE_PHONE, mobileAdd);
+      }
+
+      if (teamAdd != "" ) {
+        contact.addCompany(teamAdd, positionAdd);
+
+        // NOT sure what is meant by group over here
+        var group = ContactsApp.getContactGroup("System Group: My Contacts");
+        group.addContact(contact);
+
+        // Finally, once we have uploaded the contact, set Status to "Uploaded".
+        // --> this does not work, as all users of the sheet will see this message...
+        for (var iRow = 3; iRow <= MaxRow; iRow++) {
+          sheet.getRange("K" + iRow).setValue('Uploaded');
+        }
+      }
+    }
   }
-
-    // Finally, we can add the new contacts to the sheet
-  function addNewContact(){
-  }
+}
 
 
 
@@ -632,6 +437,59 @@ function testsearch(){
 // }
 
 
+
+//creeer totaal menu en zet de submenu's er in
+
+
+
+
+
+
+function setAllGUIs() {
+   //Submenu 2: Alter contact group. That is, alter name, function etc etc
+   //Submenu 3: Delete an existing contact group
+   // GuiAlterContacts()
+   // guiAlterContacts()
+    // guiTestWidget()
+    guiDialog()
+    guiAlterContactGroups()
+    gUIimportcontacts()
+
+}
+
+
+
+function guiDialog() {
+
+  //Submenu 1: add a new contact group
+  // NOTE: this only means the contact group is    added to the spreadsheet self, NOT to the Google contacts  (this only happens when updating contacts)
+   var subMenuShowDialogSidebar = ui.createMenu("Add contact")
+     .addItem("Add new contact", 'addContactForm')
+     ui.createMenu('Contacts')
+       //Reference submenu
+     .addSubMenu(subMenuShowDialogSidebar)
+     //  .addSeparator()
+     //  .addSubMenu(subMenuclear)  // Call submenu for updaten here
+     .addToUi()
+}
+
+
+//OPEN THE FORM IN SIDEBAR 
+function addContactForm() {      
+  var form = HtmlService.createTemplateFromFile('Index').evaluate().setTitle('Contact Details');
+  SpreadsheetApp.getUi().showSidebar(form);
+}
+
+
+
+//INCLUDE HTML PARTS, EG. JAVASCRIPT, CSS, OTHER HTML FILES
+function include(filename) {
+  return HtmlService.createHtmlOutputFromFile(filename).getContent();
+}
+
+
+
+
 function guiAlterContactGroups() {
 
   //Submenu 1: add a new contact group
@@ -649,19 +507,72 @@ function guiAlterContactGroups() {
 }
 
 
+function gUIimportcontacts() {
+  //Declaring submenus:
+  //Submenu 1: import all contacts
+   var subMenuImportContacts = ui.createMenu("Update Google contacts")
+    .addItem("Import all contacts to Google Contacts", 'importContacts')
+      // Submenu 2: update contacts (so delete the deleted, update the updates and add new contacts
 
+      //Function yet to be created !
 
-function addNewContactgroup(contactGroupName) {
-  var MaxRow = sheet.getLastRow();
-  // (include a white row between the new and the adjacent contact group)
-  var rowNewContactgroup = MaxRow + 2;
-  var newContactGroupAdd = sheet.getRange(rowNewContactgroup,contactgroupIndex+1).setValue(contactGroupName).setFontWeight("bold");
-  // Create a range group for the new contact group. The Range which can inklappen we want underneath the title of this contact group (hece rownewcontactgroup +1)
-  var rangeOfGroup = SpreadsheetApp.getActiveSheet().getRange(rowNewContactgroup+1,1,1);
-  var group = rangeOfGroup.activate().shiftRowGroupDepth(1);
-  addFirstContactToNewContactGroupPrompt(contactGroupName);
-  var namedRange = spreadsheet.setNamedRange(contactGroupName, rangeOfGroup);
+    ui.createMenu('Import contacts')
+    //Reference submenu
+    .addSubMenu(subMenuImportContacts)
+  //  .addSeparator()
+  //  .addSubMenu(subMenuclear)  // Call submenu for updaten here
+    .addToUi()
 }
+
+
+
+
+function onOpen(e) {
+
+  setAllGUIs()
+
+}
+// Underneath is all about importing the contact to google contacts
+
+
+// Process the filled in formobject aka get credentials of the new contact
+function getCredentialOfForm(argForm){ 
+
+  var fullContactCredentials = ([
+                argForm.CGroup_1,  
+                argForm.CGroup_2,
+                argForm.CGroup_3,
+                argForm.CGroup_4,
+                argForm.first_name,
+                argForm.last_name,
+                argForm.email,
+                argForm.phone_number     
+                ]);
+
+ // var contactGroupDimensionNames = fullContactCredentials.slice(0,3);
+
+  SpreadsheetApp.getActiveSpreadsheet.toast(fullContactCredentials);
+  Logger.log(fullContactCredentials);
+  return [fullContactCredentials];
+}
+
+
+// Get tags from sheet
+function getAvailableTags(tagColumn) {
+  var data = sheet.getDataRange().getValues();
+  var headers = 2; // number of header rows to skip at top
+  ; // column # (0-based) containing tag
+
+  var availableTags = [];
+
+  for (var row=headers; row < data.length; row++) {
+    availableTags.push(data[row][tagColumn]);
+  }
+
+  return( availableTags );
+}
+
+
 
 
 // // Underneath can probably be deleted
@@ -703,156 +614,3 @@ function addNewContactgroup(contactGroupName) {
 //       return;
 //       }
 // }
-
-
-
-// Underneath is all about importing the contact to google contacts
-
-
-function gUIimportcontacts() {
-  //Declaring submenus:
-  //Submenu 1: import all contacts
-   var subMenuImportContacts = ui.createMenu("Update Google contacts")
-    .addItem("Import all contacts to Google Contacts", 'importContacts')
-      // Submenu 2: update contacts (so delete the deleted, update the updates and add new contacts
-
-      //Function yet to be created !
-
-    ui.createMenu('Import contacts')
-    //Reference submenu
-    .addSubMenu(subMenuImportContacts)
-  //  .addSeparator()
-  //  .addSubMenu(subMenuclear)  // Call submenu for updaten here
-    .addToUi()
-}
-
-function importContacts() {ContactsApp.createContac
-  for (var i = 0; i < data.length; i++) {
-    var row = data[i];
-    var firstName = row[firstNameIndex];
-    var lastName = row[lastNameIndex];
-    var emailAdd = row[emailIndex];
-    var teamAdd = row[contactgroupIndex];
-    var positionAdd = row[positionIndex];
-    var mobileAdd = row[mobileIndex];
-    var statusRow = row[statusIndex];
-
-    if (statusRow != "Uploaded") {
-      var contact = ContactsApp.createContact(firstName, lastName, emailAdd);
-
-      if (mobileAdd != "" ) {
-        contact.addPhone(ContactsApp.Field.MOBILE_PHONE, mobileAdd);
-      }
-
-      if (teamAdd != "" ) {
-        contact.addCompany(teamAdd, positionAdd);
-
-        // NOT sure what is meant by group over here
-        var group = ContactsApp.getContactGroup("System Group: My Contacts");
-        group.addContact(contact);
-
-        // Finally, once we have uploaded the contact, set Status to "Uploaded".
-        // --> this does not work, as all users of the sheet will see this message...
-        for (var iRow = 3; iRow <= MaxRow; iRow++) {
-          sheet.getRange("K" + iRow).setValue('Uploaded');
-        }
-      }
-    }
-  }
-}
-
-// Get tags from sheet
-function getAvailableTags(tagColumn) {
-  var data = sheet.getDataRange().getValues();
-  var headers = 2; // number of header rows to skip at top
-  ; // column # (0-based) containing tag
-
-  var availableTags = [];
-
-  for (var row=headers; row < data.length; row++) {
-    availableTags.push(data[row][tagColumn]);
-  }
-
-  return( availableTags );
-}
-
-
-
-//// Practising cards is underneath
-
-// function theCard() {
-
-// var textInput = CardService.newTextInput()
-//     .setFieldName("text_input_form_input_key")
-//     .setTitle("Text input title")
-//     .setHint("Text input hint")
-
-
- 
-//  var cardsection = CardService.newCardSection()
-//   .addWidget(textInput)
-
-// var card = CardService.newCardBuilder()
-//     .setName("Card name")
-//     .setHeader(CardService.newCardHeader().setTitle("Card title"))
-//     .addSection(cardsection)
-//     .build();
-
-// return card;
-// }
-
-
-// function guipracticeCard() {
-
-//   //Submenu 1: add a new contact group
-//   // NOTE: this only means the contact group is    added to the spreadsheet self, NOT to the Google contacts  (this only happens when updating contacts)
-//    var subMenuCreateContact = ui.createMenu("Practice Cards")
-//      .addItem("practice", 'practiceCard')
-
-
-//      ui.createMenu('Practice')
-//        //Reference submenu
-//      .addSubMenu(subMenuCreateContact)
-//      //  .addSeparator()
-//      //  .addSubMenu(subMenuclear)  // Call submenu for updaten here
-//      .addToUi()
-// }
-
-
-
-// function practiceCard() {
-
-// var textInput = CardService.newTextInput()
-//     .setFieldName("text_input_form_input_key")
-//     .setTitle("Text input title")
-//     .setHint("Text input hint");
-
-
-//     return CardService
-//      .newCardBuilder()
-//      .addSection(
-//     CardService.newCardSection()
-//     .addWidget(textInput))
-//       .build();
-// }
-
-
-
-
-
-
-// // Underneath is for testing purposes
-// function creategroup() {
-
-//   //Function here does: create a grou, starting at row number A, with a length of B row. Note: The first "1" is to specify the collumn number of the group (could be any number actually), the second one (shiftrowgroupdepth specifies the AMMOUNT of groups that is created. For this purpose, we only need one group (aka one company), so this will do !
-
-//  // var pivotTable = SpreadsheetApp.getActiveSheet().getRange('A1').createDataSourcePivotTable();
-
-//   var group = SpreadsheetApp.getActiveSheet().getRange(A,1,B).activate().shiftRowGroupDepth(1);
-
-// }
-
-
-// Hierboven nog toevoegen:
-// Merge contact voor het geval een duplicats
-// Add labels voor mensen met meerdere rollen / algemeen extra

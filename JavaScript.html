@@ -1,4 +1,9 @@
 <script>
+
+//INCLUDE HTML PARTS, EG. JAVASCRIPT, CSS, OTHER HTML FILES
+function include(filename) {
+  return HtmlService.createHtmlOutputFromFile(filename).getContent();
+}
   //Contact group tags function
   (function () {
     google.script.run.withSuccessHandler(buildTagListContactGroup).getAvailableTags(0);
@@ -11,7 +16,7 @@
   }
 
   // Sub group tages function
-  (function () {
+  (function whatisthisfunction() {
     google.script.run.withSuccessHandler(buildTagListSubGroup).getAvailableTags(1);
   })();
 
@@ -22,7 +27,7 @@
   }
 
   // Role tags function
-  (function () {
+  (function whatisthisfunction2() {
     google.script.run.withSuccessHandler(buildTagListRole).getAvailableTags(2);
   })();
 
@@ -45,10 +50,7 @@
 
   window.addEventListener('load', preventFormSubmit);
 
-  function addContactSubmit(formObject) {
-    google.script.run.addContact(formObject);
-    document.getElementById("add-contact").reset();
-  }
+
 
   // Event handlers
 
