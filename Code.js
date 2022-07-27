@@ -272,6 +272,9 @@ function addNewContactgroup(contactGroupName) {
 }
 
 
+/*
+
+old addcontact: can probably be deleted !
 
 function addContact(formObject){
   var credentials = (
@@ -366,8 +369,7 @@ function addContact(formObject){
       
             // Prompt: are you sure you dont want to add a sub group ?
 }
-
-
+*/
 
 
 
@@ -407,34 +409,6 @@ function importContacts() {ContactsApp.createContac
   }
 }
 
-
-
-
-// function addNewContact(){
-//   //PROCESS FORM: get the contact information from the dialog
-
-//     var sheet = SpreadsheetApp.getActiveSheet();
-//     var credentials = ["First_Name", "Last_Name", "Email", "Phone_Number", "form_object", "sub_group", "role" ];
-
-//     // // Check in which of the contactsgroup we want to add this new contact
-//     // for (var i = 0; i < data.length; i++) {
-//     // }
-      
-//     sheet.appendRow(credentials);
-//   }
-
-
-
-
-// function addNewContact(contactGroupName) {
-//   // (include a white row between the new and the adjacent contact group)
-//   var rowNewContactgroup = MaxRow + 2;
-//   var newContactGroupAdd = sheet.getRange(rowNewContactgroup,contactgroupIndex+1).setValue(contactGroupName).setFontWeight("bold");
-
-//   // Create a range group for the new contact group. The Range which can inklappen we want underneath the title of this contact group (hece rownewcontactgroup +1)
-//   var group = SpreadsheetApp.getActiveSheet().getRange(rowNewContactgroup+1,1,1).activate().shiftRowGroupDepth(1);
-  
-// }
 
 
 
@@ -536,7 +510,7 @@ function onOpen(e) {
 
 
 // Process the filled in formobject aka get credentials of the new contact
-function getCredentialOfForm(argForm){ 
+function getCredentialsOfForm(argForm){ 
 
   var fullContactCredentials = ([
                 argForm.CGroup_1,  
@@ -548,14 +522,15 @@ function getCredentialOfForm(argForm){
                 argForm.email,
                 argForm.phone_number     
                 ]);
-
- // var contactGroupDimensionNames = fullContactCredentials.slice(0,3);
-
-  SpreadsheetApp.getActiveSpreadsheet.toast(fullContactCredentials);
-  Logger.log(fullContactCredentials);
   return [fullContactCredentials];
 }
 
+function addNewContactFromFormInput(argForm){
+  var fullContactCredentials = getCredentialsOfForm(argForm);
+  // var contactGroupNamesArray = fullContactCredentials.slice(0,3);
+  SpreadsheetApp.getActiveSpreadsheet.toast(fullContactCredentials);
+
+} 
 
 // Get tags from sheet
 function getAvailableTags(tagColumn) {
