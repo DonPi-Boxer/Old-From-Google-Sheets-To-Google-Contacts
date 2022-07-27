@@ -7,6 +7,12 @@
     // NOte that this google.script.run should run the function highest in hierarchy for adding the contact *\
 google.script.run.getCredentialsOfForm(document.getElementById("add-contact"));
   }
+
+  var submit_form=document.getElementById("submit");
+  submit_form.onclick=function(e)
+  {
+    e.preventDefault();
+  }
   </script>
 </head>
 <body>
@@ -64,10 +70,10 @@ google.script.run.getCredentialsOfForm(document.getElementById("add-contact"));
       <input class="form-control form-control-sm" type="text" class="form-control" id="cGroup_4" name="role"
         placeholder="Function">
     </div>
-    <input type="button" value="Add contact"
+    <input type="Submit" value="Add contact" id="submit"
 onclick="submitContactForm();">
   </fieldset>
- 
+
 </body>
 </html>
 <!-- Note that this form now (finally) works with submitting !! only find a way to remove the form after submitting-->
