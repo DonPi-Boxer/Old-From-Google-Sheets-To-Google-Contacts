@@ -536,22 +536,23 @@ function onOpen(e) {
 
 
 // Process the filled in formobject aka get credentials of the new contact
-function getCredentialOfForm(argForm){ 
+function getCredentialOfForm(formObject){ 
 
+  SpreadsheetApp.getActive().toast("Initialized");
   var fullContactCredentials = ([
-                argForm.CGroup_1,  
-                argForm.CGroup_2,
-                argForm.CGroup_3,
-                argForm.CGroup_4,
-                argForm.first_name,
-                argForm.last_name,
-                argForm.email,
-                argForm.phone_number     
+                formObject.cGroup_1,  
+                formObject.cGroup_2,
+                formObject.cGroup_3,
+                formObject.cGroup_4,
+                formObject.first_name,
+                formObject.last_name,
+                formObject.email,
+                formObject.phone_number     
                 ]);
 
  // var contactGroupDimensionNames = fullContactCredentials.slice(0,3);
 
-  SpreadsheetApp.getActiveSpreadsheet.toast(fullContactCredentials);
+  SpreadsheetApp.getActive().toast(fullContactCredentials);
   Logger.log(fullContactCredentials);
   return [fullContactCredentials];
 }

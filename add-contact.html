@@ -1,18 +1,17 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
+    <base taget="_top">
     <script>
-    function addContactSubmit(formObject) {
+      function submitContactForm() {
     // NOte that this google.script.run should run the function highest in hierarchy for adding the contact *\
-    var formObject = document.getElementById('add-contact');
-    google.script.run.getCredentialOfForm(formObject)
-  };
+google.script.run.getCredentialOfForm(document.getElementById("add-contact"));
+  }
   </script>
 </head>
 <body>
-
-
-<form id="add-contact" onsubmit="addContactSubmint(this)">
+  <h1>Enter Pesonalia</h1>
+  <form id="add-contact">
   <fieldset>
     <div class="form-group">
       <label for="first_name">First name *</label>
@@ -43,31 +42,33 @@
 
   <fieldset>
     <div class="form-group">
-      <label for="CGroup_1">Group type *</label>
-      <input class="form-control form-control-sm" type="text" class="form-control" id="group_type"
+      <label for="cGroup_1">Group type *</label>
+      <input class="form-control form-control-sm" type="text" class="form-control" id="cGroup_1"
         name="group_type" placeholder="Group type">
     </div>
 
     <div class="form-group">
-      <label for="CGroup_2">Corporation *</label>
-      <input class="form-control form-control-sm" type="text" class="form-control" id="contact_group"
+      <label for="cGroup_2">Corporation *</label>
+      <input class="form-control form-control-sm" type="text" class="form-control" id="cGroup_2"
         name="contact_group" placeholder="Corporation">
     </div>
 
     <div class="form-group">
-      <label for="CGroup_3">Team</label>
-      <input class="form-control form-control-sm" type="text" class="form-control" id="sub_group" name="sub_group"
+      <label for="cGroup_3">Team</label>
+      <input class="form-control form-control-sm" type="text" class="form-control" id="cGroup_3" name="sub_group"
         placeholder="Team">
     </div>
 
     <div class="form-group">
-      <label for="CGroup_4">Role</label>
-      <input class="form-control form-control-sm" type="text" class="form-control" id="role" name="role"
+      <label for="cGroup_4">Role</label>
+      <input class="form-control form-control-sm" type="text" class="form-control" id="cGroup_4" name="role"
         placeholder="Function">
     </div>
+    <input type="button" value="Add contact"
+onclick="submitContactForm();">
   </fieldset>
-
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+ 
 </body>
 </html>
+<!-- Note that this form now (finally) works with submitting !! only find a way to remove the form after submitting-->
+<!--Also try to fix the autofill function !!-->
