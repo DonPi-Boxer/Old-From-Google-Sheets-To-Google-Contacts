@@ -5,8 +5,14 @@
     <script>
       function submitContactForm() {
     // NOte that this google.script.run should run the function highest in hierarchy for adding the contact *\
+<<<<<<< HEAD
 google.script.run.getCredentialOfForm(document.getElementById("add-contact"));
   }
+=======
+    var formObject = document.getElementById('add-contact');
+    google.script.run.addNewContactFromFormInput(formObject)
+  };
+>>>>>>> a3285963ac162ae60c0c90a975f82fd880a4a221
   </script>
 </head>
 <body>
