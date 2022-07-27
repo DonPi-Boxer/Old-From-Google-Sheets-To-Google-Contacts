@@ -536,9 +536,8 @@ function onOpen(e) {
 
 
 // Process the filled in formobject aka get credentials of the new contact
-function getCredentialOfForm(formObject){ 
+function getCredentialsOfForm(formObject){ 
 
-  SpreadsheetApp.getActive().toast("Initialized");
   var fullContactCredentials = ([
                 formObject.cGroup_1,  
                 formObject.cGroup_2,
