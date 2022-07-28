@@ -5,7 +5,7 @@
     <script>
       function submitContactForm() {
     // NOte that this google.script.run should run the function highest in hierarchy for adding the contact *\
-google.script.run.getCredentialsOfForm(document.getElementById("add-contact"));
+google.script.run.addContactContainer(document.getElementById("add-contact"));
   }
 
   var submit_form=document.getElementById("submit");
