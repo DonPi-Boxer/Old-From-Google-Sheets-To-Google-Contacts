@@ -20,12 +20,7 @@
 
 // UI2: Import contact for user /// think of something for to do when there is an update over here
 
-
-
-
-// Declare all constants
-
-
+//Declare all constants
 
 var contactgroupIndex = 0;
 var contactGroupIndex = 1;
@@ -36,6 +31,8 @@ var emailIndex = 5;
 var mobileIndex = 6;
 var statusIndex = 7;
 var headerRows = 2;
+
+var ui = SpreadsheetApp.getUi();
 
 // Sheet constants
 var sheet = SpreadsheetApp.getActiveSheet();
@@ -49,116 +46,206 @@ var data = dataRange.getValues();     // Read all data
 data.splice(0,headerRows);            // Remove header rows
 var existingContactgroups = SpreadsheetApp.getActiveSheet().getRange(1, contactgroupIndex+1, MaxRow).getValues();
 
-// Indices of collum numbers of the input
+
+
+
+
+//// Search the (grouped) range that has hadder name "GroupedRangeHeader", within the range startRow, numrows, collumn
+//// Note that in this function, we do not yet use the fact that the range is grouped to find the group
+//// Return it's starting row number if found, return false if not found.
+//Ensure that the groupedRangeHeader is a string !!!
+
+
+function  findContactGroupRowPositionExtremes(contactGroupHeader, firstRowPositionToSearch, lastRowPositionToSearch, collumnPositionToSearch) {  
+  
+  //ui.prompt ("now inside the findcontactRowPositionExtremes function, where we will search for the contact group " + contactGroupHeader);
+  
+  // The ammount of rows in which we want to search for the header is equal to the substraction of the lastRowPosition and FirstRowPosition + 1
+  // +1 one, since we are dealing with POSITIONS here, not indices
+  var numRowsToSearch = (lastRowPositionToSearch - firstRowPositionToSearch) + 1;
+  
+  //We than get the rangeToSearch by taking:
+  //FirstRowPosition
+  //CollumnPosition
+  //NumRows
+  // --> A single collumn existing out of the collumn to search of the row positions to search
+  var rangeToSearch = sheet.getRange(firstRowPositionToSearch, collumnPositionToSearch, numRowsToSearch);
+
+
+  //Get the values in this range
+  var rangeToSearchValuesArrays = rangeToSearch.getValues();
+  //ui.prompt ("range to search equals "  + rangeToSearchValuesArrays);
+ 
+  //Range to search values Arrays contains of arrays of arrays (depicting the string we search)
+  // We wnat an array of strings to use the indexOf and lastindex of functions
+  //--> force the array of string arrays into one long array
+  //Then split it into one array of strings, at every "," in the entire arrays of the arrays of arrays
+  //(Bullshit workaround but it works :))))))
+
+  var rangeToSearchValues = String(rangeToSearchValuesArrays).split(",");
+  //ui.prompt ("Range to search values array equals " + rangeToSearchValues);
+  
+
+  var searchContactGroup = String(contactGroupHeader);
+  //Use indexOf to find the first index of the GroupedRangeHeader
+  var firstRowIndexcontactGroupDimension = rangeToSearchValues.indexOf(searchContactGroup);
+  
+  //ui.prompt ("first row index contact group equals " + firstRowIndexcontactGroupDimension);
+  
+
+  //Confirm that the first index is found by checking that the query did NOT return -1
+
+  if (firstRowIndexcontactGroupDimension != -1){
+  //Then use lastindex to find the last index of the GroupedRangeHeader
+  //Note that last index and first index can have the same value, if only one row with the header exists
+  var lastRowIndexOfGroupedRangeHeader = rangeToSearchValues.lastIndexOf(searchContactGroup);
+
+  //Convert both found indices to position by adding it to the starting position of the Rows used for the search range  
+  var firstRowPositionOfHeader = firstRowIndexcontactGroupDimension + firstRowPositionToSearch;
+  var lastRowPositionOfHeader = lastRowIndexOfGroupedRangeHeader + firstRowPositionToSearch;
+
+  //ui.prompt ("We found the grouped row ! It has start position " + firstRowPositionOfHeader + "and last position " + lastRowPositionOfHeader);
+
+  return [firstRowPositionOfHeader, lastRowPositionOfHeader];
+  }
+  
+  //This would mean that the contact group was not found :()
+  else if (firstRowIndexcontactGroupDimension == -1){
+  //Als grouped range niet gevonden is --> maak een nieuwe
+  //ui.prompt ("group header not found --> inser new group ?");
+  SpreadsheetApp.getActive().toast("Did not found one group dimension, the group dimension are" + contactGroupHeader);
+  return [firstRowIndexcontactGroupDimension, false];
+    }
+
+  }
+
 
 function findRowPositionOfNewContact(contactGroupNamesArray) {
 
-    // for testing purposes
-    var contactGroupNamesArray = ["Krant", "Algemeen dagblad", "Politiek", "lead"]
-    // Contact groups array for testing puposes now: get here the array of the contact groups of the credentials of new contact
-    SpreadsheetApp.getActive().toast("Inside finding row function"); 
-    Logger.log("contact groups array is " + contactGroupNamesArray);
+  // for testing purposes
+  //var contactGroupNamesArray = ["Krant", "Algemeen dagblad", "Politiek", "lead"]
+  // Contact groups array for testing puposes now: get here the array of the contact groups of the credentials of new contact
+  //ui.prompt ("Inside finding row function"); 
+  //ui.prompt ("contact groups array is " + contactGroupNamesArray);
 
-    // Array consisting of the length of the number of contact groups defined in the sheet
-    var collumnsPositionsToSearchArray = [1,2,3,4];
+  // Array consisting of the length of the number of contact groups defined in the sheet
+  var collumnsPositionsToSearchArray = [1,2,3,4];
 
-    // For the 1st dimenstion, we want to search through the entire sheet
-    var firstRowPositionToSearch = 1;
-    var lastRowPositionToSearch = ss.getLastRow();
-    
+  // For the 1st dimenstion, we want to search through the entire sheet
+  var firstRowPositionToSearch = 1;
+  var lastRowPositionToSearch = ss.getLastRow();
+  
 
-   // for (var i=0; i < contactGroupNamesArray.length; i++){
-    for (var i=0; i < collumnsPositionsToSearchArray.length; i++){
+ // for (var i=0; i < contactGroupNamesArray.length; i++){
+  for (var i=0; i < collumnsPositionsToSearchArray.length; i++){
 
-    Logger.log("In iteration " + i + " for finding row position of new contact")
+  Logger.log("In iteration " + i + " for finding row position of new contact")
 
-    var contactGroupDimensionToSearch = contactGroupNamesArray[i];
-    var collumnPositionToSearch = collumnsPositionsToSearchArray[i];
-    
-    Logger.log("Searching in contact group dimension " + contactGroupDimensionToSearch + " at collumn position " + collumnPositionToSearch);
-    Logger.log("First row to search is " + firstRowPositionToSearch + " last row position to search is " + lastRowPositionToSearch);
+  var contactGroupDimensionToSearch = contactGroupNamesArray[i];
+  var collumnPositionToSearch = collumnsPositionsToSearchArray[i];
+  
+  //ui.prompt ("In the " + i + " iteration of searching contact group dimensions. Current Dimension name is " + contactGroupDimensionToSearch + " which we search in collumn" + collumnPositionToSearch);
 
-    var rowRangeFoundcontactGroup = findContactGroupRowPositionExtremes(contactGroupDimensionToSearch, firstRowPositionToSearch, lastRowPositionToSearch, collumnPositionToSearch);
-    
-    Logger.log(rowRangeFoundcontactGroup);
-    
-    if (rowRangeFoundcontactGroup == -1){
+  var rowRangeFoundcontactGroup = findContactGroupRowPositionExtremes(contactGroupDimensionToSearch, firstRowPositionToSearch, lastRowPositionToSearch, collumnPositionToSearch);
+  
+  //ui.prompt ("output of the find contact Row Position extremes functin is " + rowRangeFoundcontactGroup);
 
-      //figure out what to do here !!!
-      return SpreadsheetApp.getActive.toast("Group not found ... do something");
-    }
-    
-    else if (rowRangeFoundcontactGroup != -1){
+  Logger.log(rowRangeFoundcontactGroup);
+  
+  if (rowRangeFoundcontactGroup == -1){
 
-    //Update the first and last row position to search for the next iteration
+    //figure out what to do here !!!
+    SpreadsheetApp.getActive().toast("leaving finding row functio, CONTACT WAS NOT FOUND");
+    return [rowRangeFoundcontactGroup, contactGroupDimensionToSearch];
+  }
+  
+  else if (rowRangeFoundcontactGroup != -1){
 
-    firstRowPositionToSearch = rowRangeFoundcontactGroup[0];
-    lastRowPositionToSearch = rowRangeFoundcontactGroup[1];
-    }
-      }
-
-    return lastRowPositionToSearch;
+  //Update the first and last row position to search for the next iteration
+  
+  firstRowPositionToSearch = rowRangeFoundcontactGroup[0];
+  lastRowPositionToSearch = rowRangeFoundcontactGroup[1];
+ 
   }
 
-       //// Search the (grouped) range that has hadder name "GroupedRangeHeader", within the range startRow, numrows, collumn
-      //// Note that in this function, we do not yet use the fact that the range is grouped to find the group
-      //// Return it's starting row number if found, return false if not found.
-      //Ensure that the groupedRangeHeader is a string !!!
-
-  function  findContactGroupRowPositionExtremes(contactGroupHeader, firstRowPositionToSearch, lastRowPositionToSearch, collumnPositionToSearch) {  
-    // The ammount of rows in which we want to search for the header is equal to the substraction of the lastRowPosition and FirstRowPosition + 1
-    // +1 one, since we are dealing with POSITIONS here, not indices
-    var numRowsToSearch = (lastRowPositionToSearch - firstRowPositionToSearch) + 1;
-    
-    //We than get the rangeToSearch by taking:
-    //FirstRowPosition
-    //CollumnPosition
-    //NumRows
-    // --> A single collumn existing out of the collumn to search of the row positions to search
-    var rangeToSearch = sheet.getRange(firstRowPositionToSearch, collumnPositionToSearch, numRowsToSearch);
-
-    //Get the values in this range
-    var rangeToSearchValuesArrays = rangeToSearch.getValues();
-    Logger.log("Range values Matrix equals " + rangeToSearchValuesArrays);
-
-    //Range to search values Arrays contains of arrays of arrays (depicting the string we search)
-    // We wnat an array of strings to use the indexOf and lastindex of functions
-    //--> force the array of string arrays into one long array
-    //Then split it into one array of strings, at every "," in the entire arrays of the arrays of arrays
-    //(Bullshit workaround but it works :))))))
-
-    var rangeToSearchValues = String(rangeToSearchValuesArrays).split(",");
-    Logger.log("The Values of the Range in which we will search are " + rangeToSearchValues);
-  
-    //Use indexOf to find the first index of the GroupedRangeHeader
-    var firstRowIndexcontactGroupDimension = rangeToSearchValues.indexOf(contactGroupHeader);
-    Logger.log("first row index grouped header equals " + firstRowIndexcontactGroupDimension);
-
-    Logger.log("We are searching for the grouped range header" + contactGroupHeader);
-    //Confirm that the first index is found by checking that the query did NOT return -1
-
-    if (firstRowIndexcontactGroupDimension != -1){
-    //Then use lastindex to find the last index of the GroupedRangeHeader
-    //Note that last index and first index can have the same value, if only one row with the header exists
-    var lastRowIndexOfGroupedRangeHeader = rangeToSearchValues.lastIndexOf(contactGroupHeader);
-
-    //Convert both found indices to position by adding it to the starting position of the Rows used for the search range  
-    var firstRowPositionOfHeader = firstRowIndexcontactGroupDimension + firstRowPositionToSearch;
-    var lastRowPositionOfHeader = lastRowIndexOfGroupedRangeHeader + firstRowPositionToSearch;
-
-    Logger.log("We found the grouped row ! It has start position " + firstRowPositionOfHeader + "and last position " + lastRowPositionOfHeader);
-    return [firstRowPositionOfHeader, lastRowPositionOfHeader];
     }
-    
-    //This would mean that the contact group was not found :()
-    else if (firstRowIndexcontactGroupDimension == -1){
-    //Als grouped range niet gevonden is --> maak een nieuwe
-    Logger.log("group header not found --> inser new group ?");
-    SpreadsheetApp.getActive().toast("Did not found one group dimension");
-    return firstRowIndexcontactGroupDimension;
-      }
 
-    }
+    SpreadsheetApp.getActive().toast("leaving finding row functio, CONTACT WAS FOUND for poSITION " + lastRowPositionToSearch);
+    return lastRowPositionToSearch;    
+}
+
+
+//Parse all functions and let the magic happen niffo
+//Note that this function gets call from the getCredentialsOfForm function
+function appendContactToRowPosition(fullContactCredentials) {
+
+  //ui.prompt ("Now inside the append contact to Row Position functions");
+  //Get only the contact group dimensional names from the full contact credentials.
+  var contactGroupDimensionNamesArray = fullContactCredentials.slice(0,4);
+  //ui.prompt ("The contact group dimension names array is " + contactGroupDimensionNamesArray);
+ 
+//  SpreadsheetApp.getActive().toast("Full contact credentials is " + fullContactCredentials);
+  //Note: probably have to expand this variable in order to take non full contact group dimensions into account
+  //Probably work something out using true false booleans ?
+  //ui.prompt ("Moving from appendcontacttoRowPosition to findRowPositionOfNewContact");
+  var rowPositionOfLastContactInSameDimension = findRowPositionOfNewContact(contactGroupDimensionNamesArray);
+  //ui.prompt ("Moved back rom find the row position of last contact in same dimenions to the append contact function, row position of the last similair contact is " + rowPositionOfLastContactInSameDimension);
+  var rowPositionOfNewContact = rowPositionOfLastContactInSameDimension + 1;
+  //ui.prompt ("So new contact comes in row " + rowPositionOfNewContact + " we append in this row the credentials " + fullContactCredentials);
+//Insert a new row after the last found contact already existing inside all 4 corresponding contact group dimensions
+  sheet.insertRows(rowPositionOfNewContact);
+  SpreadsheetApp.getActive().toast("appended succesfully")
+//Length of the entire contact Credentials array in order to succesfully grab a range to set the values of the credentials in
+  const fullCredentialsLength = fullContactCredentials.length;
+  //ui.prompt ("length of credentials is " + fullCredentialsLength);
+//Get the range of the new contact  
+  const rangeOfNewContact = sheet.getRange(rowPositionOfNewContact, 1, 1, fullCredentialsLength);
+  rangeOfNewContact.setValues([fullContactCredentials]);
+  SpreadsheetApp.getActive().toast("Added new contact !");
+}
+
+
+function getCredentialsOfForm(formObject){ 
+
+  var fullContactCredentials = ([
+                formObject.cGroup_1,  
+                formObject.cGroup_2,
+                formObject.cGroup_3,
+                formObject.cGroup_4, 
+                formObject.first_name,
+                formObject.last_name,                
+                formObject.email,
+                formObject.phone_number                 
+                ]);
+
+  fullContactCredentials[7] = "'" + fullContactCredentials[7];
+  fullContactCredentials.push("@" + fullContactCredentials[6]);
+
+ // const fullContactCredentials = Object.values(formObject);
+  ui.prompt ("within the getcredentialsofforn function, the full contact credentials array is equal to " + fullContactCredentials);
+  return fullContactCredentials;
+}
+
+
+function addContactContainer(formObject){
+  //ui.prompt ("In the add contact container function, going into the getCredentialsOfForm functions");
+  var fullContactCredentials = getCredentialsOfForm(formObject);
+  // function runs into the getcredentials of form, but not further than there. where goes this wrong ?
+  //ui.prompt ("In de add contact container, the full contact credentials array is equal to " + fullContactCredentials);
+  //ui.prompt ("Moving withinin the add contact container function from the get credentials of form function into the appendcontactToRowPosition function");
+  appendContactToRowPosition(fullContactCredentials);
+  //ui.prompt ("All done with the addContactContainer function (and thus with everything_)");
+}
+
+
+
+
+
+
+
+
+
+
     
 
 
@@ -526,68 +613,6 @@ function onOpen(e) {
 // Underneath is all about importing the contact to google contacts
 
 
-//Parse all functions and let the magic happen niffo
-//Note that this function gets call from the getCredentialsOfForm function
-function appendContactToRowPosition(fullContactCredentials) {
-
-  SpreadsheetApp.getActive().toast("Inside append function");
-
- 
-  //Get only the contact group dimensional names from the full contact credentials
-  var contactGroupDimensionNamesArray = fullContactCredentials.slice(0,4);
-  SpreadsheetApp.getActive().toast("Succesfully sliced");
-  SpreadsheetApp.getActive().toast("Slice output is " + contactGroupDimensionNamesArray);
- 
-//  SpreadsheetApp.getActive().toast("Full contact credentials is " + fullContactCredentials);
-  //Note: probably have to expand this variable in order to take non full contact group dimensions into account
-  //Probably work something out using true false booleans ?
-
-  var rowPositionOfLastContactInSameDimension = findRowPositionOfNewContact(contactGroupDimensionNamesArray);
-  SpreadsheetApp.getActive().toast("Succesfully found row position of new contact");
-  var rowPositionOfNewContact = rowPositionOfLastContactInSameDimension + 1;
-
-
-  Logger.log("The row position of the new contact equals " + rowPositionOfNewContact);
-  SpreadsheetApp.getActive().toast("The row position of the new contact equals " + rowPositionOfNewContact);
-//Insert a new row after the last found contact already existing inside all 4 corresponding contact group dimensions
-  sheet.insetRows(rowPositionOfNewContact);
-//Length of the entire contact Credentials array in order to succesfully grab a range to set the values of the credentials in
-  const fullCredentialsLength = fullContactCredentials.length;
-//Get the range of the new contact  
-  const rangeOfNewContact = sheet.getRange(rowPositionOfNewContact, 1, 1, fullCredentialsLength);
-  rangeOfNewContact.setValue(fullContactCredentials);
-  SpreadsheetApp.getActive().toast("Added new contact !")
-}
-
-
-function getCredentialsOfForm(formObject){ 
-
-  // const fullContactCredentials = ([
-  //               [formObject.cGroup_1],  
-  //               [formObject.cGroup_2],
-  //               [formObject.cGroup_3],
-  //               [formObject.cGroup_4],
-  //               [formObject.first_name],
-  //               [formObject.last_name],
-  //               [formObject.email],
-  //               [formObject.phone_number]     
-  //               ]);
-
-  const fullContactCredentials = Object.values(formObject);
-  console.log(fullContactCredentials);
-
-  SpreadsheetApp.getActive().toast(fullContactCredentials);
-  Logger.log(fullContactCredentials);
-  return fullContactCredentials;
-}
-
-
-function addContactContainer(formObject){
-  SpreadsheetApp.getActive().toast("Inside container function ");
-  var fullContactCredentials = getCredentialsOfForm(formObject);
-  // function runs into the getcredentials of form, but not further than there. where goes this wrong ?
-  appendContactToRowPosition(fullContactCredentials);
-}
 
 // // Process the filled in formobject aka get credentials of the new contact
 // function getCredentialsOfForm(formObject){ 
@@ -662,7 +687,7 @@ function getAvailableTags(tagColumn) {
 // Underneath function can probably be deleted
 // function credentialsPrompt(){  
  
-//   var namePopUp = ui.prompt("Name ?", ui.ButtonSet.OK_CANCEL);
+//   var namePopUp = //ui.prompt ("Name ?", ui.ButtonSet.OK_CANCEL);
 //   var namePopUpButton = namePopUp.getSelectedButton();
   
 //    if (namePopUpButton == ui.Button.OK){   
