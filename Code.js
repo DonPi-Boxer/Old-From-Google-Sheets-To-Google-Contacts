@@ -106,15 +106,15 @@ function  findContactGroupRowPositionExtremes(contactGroupHeader, firstRowPositi
 
   //ui.prompt ("We found the grouped row ! It has start position " + firstRowPositionOfHeader + "and last position " + lastRowPositionOfHeader);
 
-  return [firstRowPositionOfHeader, lastRowPositionOfHeader];
+  return [true, firstRowPositionOfHeader, lastRowPositionOfHeader];
   }
   
-  //This would mean that the contact group was not found :()
+  //This would mean that the contact group was not found :(). We return the extremes we had found in the previous iteration + the collumns that still need to be found
   else if (firstRowIndexcontactGroupDimension == -1){
   //Als grouped range niet gevonden is --> maak een nieuwe
   //ui.prompt ("group header not found --> inser new group ?");
-  SpreadsheetApp.getActive().toast("Did not found one group dimension, the group dimension are" + contactGroupHeader);
-  return [firstRowIndexcontactGroupDimension, false];
+  ui.prompt("Did not found one group dimension, the group dimension are" + contactGroupHeader);
+  return [false, i];
     }
 
   }
@@ -152,26 +152,43 @@ function findRowPositionOfNewContact(contactGroupNamesArray) {
 
   Logger.log(rowRangeFoundcontactGroup);
   
-  if (rowRangeFoundcontactGroup == -1){
+  if (rowRangeFoundcontactGroup[0] == false){
 
     //figure out what to do here !!!
-    SpreadsheetApp.getActive().toast("leaving finding row functio, CONTACT WAS NOT FOUND");
-    return [rowRangeFoundcontactGroup, contactGroupDimensionToSearch];
+    ui.prompt("contact group dimension in collumn" + contactGroupDimensionToSearch + "not found, we have had " + i + "iterations, previously we did find as lower extreme " + firstRowPositionToSearch + "and as upper extreme " + lastRowPositionToSearch);
+
+    //Create a prompt with mentioning the missing contact group dimension -> do you want to add these ?
+
+    var lastFoundExtremes = [firstRowPositionToSearch, lastRowPositionToSearch];
+
+    //Return False so we know it was not found, i so we know how many iterations did find a match, and the extremes of the last found dimension
+    return [false, i, lastFoundExtremes];
   }
   
-  else if (rowRangeFoundcontactGroup != -1){
+  else if (rowRangeFoundcontactGroup[0] == true){
 
-  //Update the first and last row position to search for the next iteration
-  
-  firstRowPositionToSearch = rowRangeFoundcontactGroup[0];
-  lastRowPositionToSearch = rowRangeFoundcontactGroup[1];
- 
+  //Update the first and last row position to search for the next iteration  
+  firstRowPositionToSearch = rowRangeFoundcontactGroup[1];
+  lastRowPositionToSearch = rowRangeFoundcontactGroup[2]; 
   }
-
     }
 
     SpreadsheetApp.getActive().toast("leaving finding row functio, CONTACT WAS FOUND for poSITION " + lastRowPositionToSearch);
-    return lastRowPositionToSearch;    
+    return [true, lastRowPositionToSearch];    
+}
+
+
+//Insert a new row after the last found contact already existing inside all 4 corresponding contact group dimensions
+function addContactToRow(rowPositionOfNewContact, fullContactCredentials){
+  sheet.insertRows(rowPositionOfNewContact);
+  SpreadsheetApp.getActive().toast("appended succesfully")
+  //Length of the entire contact Credentials array in order to succesfully grab a range to set the values of the credentials in
+  const fullCredentialsLength = fullContactCredentials.length;
+  //ui.prompt ("length of credentials is " + fullCredentialsLength);
+  //Get the range of the new contact  
+  const rangeOfNewContact = sheet.getRange(rowPositionOfNewContact, 1, 1, fullCredentialsLength);
+  rangeOfNewContact.setValues([fullContactCredentials]);
+  SpreadsheetApp.getActive().toast("Added new contact !");
 }
 
 
@@ -184,25 +201,44 @@ function appendContactToRowPosition(fullContactCredentials) {
   var contactGroupDimensionNamesArray = fullContactCredentials.slice(0,4);
   //ui.prompt ("The contact group dimension names array is " + contactGroupDimensionNamesArray);
  
-//  SpreadsheetApp.getActive().toast("Full contact credentials is " + fullContactCredentials);
+  // SpreadsheetApp.getActive().toast("Full contact credentials is " + fullContactCredentials);
   //Note: probably have to expand this variable in order to take non full contact group dimensions into account
   //Probably work something out using true false booleans ?
   //ui.prompt ("Moving from appendcontacttoRowPosition to findRowPositionOfNewContact");
   var rowPositionOfLastContactInSameDimension = findRowPositionOfNewContact(contactGroupDimensionNamesArray);
   //ui.prompt ("Moved back rom find the row position of last contact in same dimenions to the append contact function, row position of the last similair contact is " + rowPositionOfLastContactInSameDimension);
-  var rowPositionOfNewContact = rowPositionOfLastContactInSameDimension + 1;
-  //ui.prompt ("So new contact comes in row " + rowPositionOfNewContact + " we append in this row the credentials " + fullContactCredentials);
-//Insert a new row after the last found contact already existing inside all 4 corresponding contact group dimensions
-  sheet.insertRows(rowPositionOfNewContact);
-  SpreadsheetApp.getActive().toast("appended succesfully")
-//Length of the entire contact Credentials array in order to succesfully grab a range to set the values of the credentials in
-  const fullCredentialsLength = fullContactCredentials.length;
-  //ui.prompt ("length of credentials is " + fullCredentialsLength);
-//Get the range of the new contact  
-  const rangeOfNewContact = sheet.getRange(rowPositionOfNewContact, 1, 1, fullCredentialsLength);
-  rangeOfNewContact.setValues([fullContactCredentials]);
-  SpreadsheetApp.getActive().toast("Added new contact !");
+  
+  
+  //If the first entry True, we have found all four input dimension and we can simply add the new contact to its found row
+  if (rowPositionOfLastContactInSameDimension[0] == true) {
+  var rowPositionOfNewContact = rowPositionOfLastContactInSameDimension[1] + 1;
+  ui.prompt ("So new contact comes in row " + rowPositionOfNewContact + " we append in this row the credentials " + fullContactCredentials);
+  addContactToRow(rowPositionOfNewContact, fullContactCredentials);
+  }
+
+
+  //If the last entry is not true, ask if we want to create the new contact groups and add the contact there. Otherwise, try again
+  else if (rowPositionOfLastContactInSameDimension[0] == false){
+    ui.prompt("Do something");
+    var itertationNotFound = rowPositionOfLastContactInSameDimension[1];
+    var lastFoundExtremes = rowPositionOfLastContactInSameDimension[2];
+    missingContactGroupDimensions(contactGroupDimensionNamesArray, itertationNotFound, lastFoundExtremes)
+    }
+  }
+
+function missingContactGroupDimensions(contactGroupDimensionNamesArray, itertationNotFound, lastFoundExtremes){
+  var foundContactGroupDimensions = contactGroupDimensionNamesArray.slice(0,itertationNotFound-1);
+  var notFoundContcatGroupDimensions = contactGroupDimensionNamesArray.slice(itertationNotFound, contactGroupDimensionNamesArray.length)
+  
+  ui.prompt("For the given input contact group dimension \n" 
+                       +  contactGroupDimensionNamesArray + 
+            " There are no matches for "
+                        + notFoundContcatGroupDimensions +
+            "After "
+                      + foundContactGroupDimensions)
 }
+
+
 
 
 function getCredentialsOfForm(formObject){ 
@@ -226,7 +262,6 @@ function getCredentialsOfForm(formObject){
   return fullContactCredentials;
 }
 
-
 function addContactContainer(formObject){
   //ui.prompt ("In the add contact container function, going into the getCredentialsOfForm functions");
   var fullContactCredentials = getCredentialsOfForm(formObject);
@@ -235,23 +270,7 @@ function addContactContainer(formObject){
   //ui.prompt ("Moving withinin the add contact container function from the get credentials of form function into the appendcontactToRowPosition function");
   appendContactToRowPosition(fullContactCredentials);
   //ui.prompt ("All done with the addContactContainer function (and thus with everything_)");
-}
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
+} 
     // Given the starting row of a grouped range, find it's properties
     // Note that with this function, we do use the fact that it's a grouped range in order to find its properties
     // Return: groupdepth, GroupLength
