@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <script>
+    function submitForm() {
+      google.script.run.appendRowFromFormSubmit(document.getElementById("feedbackForm"));
+      document.getElementById("form").style.display = "none";
+      document.getElementById("thanks").style.display = "block";
+    }
+  </script>
+</head>
+<body>
+  <div>
+  <div id="form">
+  <h1>Enter feedback</h1>
+  <form id="feedbackForm">
+    <label for="name">Name</label>
+    <input type="text" id="name" name="name"><br><br>
+    <label for="feedback">Feedback</label>
+    <input type="text" id="feedback" name="feedback"><br><br>
+    <div>
+      <label for="rating">Are you satisfied?</label><br>
+      <input type="radio" id="yes" name="rating" value="Yes">
+      <label for="yes">Yes</label><br>
+      <input type="radio" id="no" name="rating" value="No">
+      <label for="no">No</label><br><br>
+      <input type="button" value="Submit feedback" onclick="submitForm();">
+  </form>
+  </div>
+  </div>
+  <div id="thanks" style="display: none;">
+    <p>Thank you for sumbitting feedback!</p>
+  </div>
+</body>
+</html>
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>
+         <table id="qc-table" class="qc-table">
+        <tr>
+          <td>
+            <button id="sheet-1" class="btn btn-primary btn-sm" onclick="google.script.run.setSheet1(<?=row?>,<?=col?>,<?=cell1?>);google.script.host.close();">Sheet 1</button></td>
+          <td class="profile-data"><p id="sheet-1-profile">Data from Sheet 1: <?=cell1?>   </p></td>
+        </tr>
+        <tr>
+          <td><button id="sheet-2" class="btn btn-secondary btn-sm" onclick="google.script.run.setSheet2(<?=row?>,<?=col?>,<?=cell2?>);google.script.host.close();">Sheet 2</button></td>
+          <td class="profile-data"><p id="sheet-2-profile">Data from Sheet 2: <?=cell2?>   </p></td>
+        </tr>
+      </table>
+  </body>
+</html>

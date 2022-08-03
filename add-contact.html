@@ -5,9 +5,10 @@
     <script>
       function submitContactForm() {
     // NOte that this google.script.run should run the function highest in hierarchy for adding the contact *\
-google.script.run.addContactContainer(document.getElementById("add-contact"));
-  }
-
+google.script.run
+.withSuccessHandler(google.script.host.close)
+.addContactContainer(document.getElementById("add-contact"));  
+}
   var submit_form=document.getElementById("submit");
   submit_form.onclick=function(e)
   {
@@ -16,7 +17,7 @@ google.script.run.addContactContainer(document.getElementById("add-contact"));
   </script>
 </head>
 <body>
-  <h1>Enter Pesonalia</h1>
+  <h2>Enter Pesonalia</h2>
   <form id="add-contact">
   <fieldset>
     <div class="form-group">
@@ -42,7 +43,7 @@ google.script.run.addContactContainer(document.getElementById("add-contact"));
       <input class="form-control form-control-sm" type="text" class="form-control" id="phone_number" name="phone_number"
         placeholder="Phone number">
     </div>
-
+    <h2>Enter contact groups</h2>
     <div class="form-group">
       <label for="cGroup_1">Group type *</label>
       <input class="form-control form-control-sm" type="text" class="form-control" id="cGroup_1"
