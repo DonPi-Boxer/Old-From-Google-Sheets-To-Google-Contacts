@@ -232,8 +232,8 @@ function appendContactToRowPosition(fullContactCredentials) {
     userCache.putAll(valuesToCache);
 
     //For testing purposes
-var checkCacheKey =userCache.getAll(['fullContactCredentials','contactGroupDimensionNamesArray','iterationNotFound','lastFoundFirstRowExtreme','lastFoundLastRowExtreme']);
-
+var checkCacheKey = userCache.getAll(['fullContactCredentials','contactGroupDimensionNamesArray','iterationNotFound','lastFoundFirstRowExtreme','lastFoundLastRowExtreme']);
+ ui.prompt("cache is " + checkCacheKey);
 //Run the modal
 
 /*   var checkCacheKey2 = [
