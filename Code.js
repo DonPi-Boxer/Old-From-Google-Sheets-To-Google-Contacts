@@ -131,7 +131,11 @@ function findRowPositionOfNewContact(contactGroupNamesArray) {
 
   // Array consisting of the length of the number of contact groups defined in the sheet
   //NOTE: CHANGE THIS BY AN ARRAY WITH INCREMENTAL STEP OF ! UNTILL  THE LENGTH OF THE CgroupDImensions
-  var collumnsPositionsToSearchArray = [1,2,3,4];
+
+  var ccontactGroupNamesArrayLength = contactGroupNamesArray.length();
+  var collumnsPositionsToSearchArray = Array.from({length: ccontactGroupNamesArrayLength}, (_, index) => index + 1);
+  ui.prompt("collumnpositiontosearch array is " + collumnsPositionsToSearchArray);
+  //var collumnsPositionsToSearchArray = [1,2,3,4];
 
   // For the 1st dimenstion, we want to search through the entire sheet
   var firstRowPositionToSearch = 1;
@@ -225,7 +229,7 @@ function appendContactToRowPosition(fullContactCredentials) {
     var valuesToCache = {
       'fullContactCredentials' : fullContactCredentials.toString(),
       'contactGroupDimensionNamesArray' : contactGroupDimensionNamesArray.toString(),
-      'iterationNotFound' : itertationNotFound.toString(),
+    'iterationNotFound' : itertationNotFound.toString(),
       'lastFoundFirstRowExtreme' : lastFoundFirstRowExtreme.toString(),
       'lastFoundLastRowExtreme' : lastFoundLastRowExtreme.toString()    };
 
@@ -236,39 +240,24 @@ var checkCacheKey = userCache.getAll(['fullContactCredentials','contactGroupDime
  ui.prompt("cache is " + checkCacheKey);
 //Run the modal
 
-/*   var checkCacheKey2 = [
-userCache.get('fullContactCredentials'), 
-userCache.get('contactGroupDimensionNamesArray'),
-userCache.get('iterationNotFound'),
-userCache.get('lastFoundFirstRowExtreme'),
-userCache.get('lastFoundLastRowExtreme')];
 
-//Run the modal
-ui.prompt("array of cache object is " + checkCacheKey2); */
-
-    //Run the modal
-
-  
+    //Run the modal  
     }
   }
 
-  
-  
-  // testing the functions concatanation through the test menu in the gui
-  function test(){
-     
-    ui.prompt("in test"); 
 
-   
-    //var itertationNotFound = 2;
-    //var lastFoundExtremes = [5,10];
-    userCache.put('wanhoop', 'hallo');
 
-    var wanhoop = userCache.get('wanhoop');
-    ui.prompt("Hier zie ik gewoon de tijd namelijk " + wanhoop);
-   // SessionStorage.setItem("lastFoundExtremes_1", JSON.stringify(lastFoundExtremes[0]));
-   // SessionStorage.setItem("lastFoundExtremes_2", JSON.stringify(lastFoundExtremes[1] ));
-   contactGroupNotFoundModalDialog();
+  function getCachedContactGroupNotFoundVars(){
+  var checkCacheKey2 = 
+  [
+  [userCache.get('fullContactCredentials')], 
+  [userCache.get('contactGroupDimensionNamesArray')]
+  [userCache.get('iterationNotFound')],
+  [userCache.get('lastFoundFirstRowExtreme')],
+  [userCache.get('lastFoundLastRowExtreme')]
+    ];
+
+  ui.prompt("array of cache object is " + checkCacheKey2);     
   }
 
 
@@ -276,13 +265,13 @@ ui.prompt("array of cache object is " + checkCacheKey2); */
    
   var itertationNotFoundHere = userCache.get('wanhoop');
  // var lastFoundExtremes = SessionStorage.getItem("lastFoundExtremes_1")
-    ui.prompt("KOMOOOPPPPPPP,session storage iteration is "+ itertationNotFoundHere);
+    ui.prompt("KOMOOOPPPPPPP,session storage iteration is "+ checkCacheKey2);
   }
 
   function alterinputCGroups(){
     var itertationNotFoundHere = userCache.get('wanhoop');
 //    var lastFoundExtremes = SessionStorage.getItem("lastFoundExtremes_1")
-    ui.prompt("KOMOOOPPPPPPP, session storage iteration is " + itertationNotFoundHere);
+    ui.prompt("KOMOOOPPPPPPP, session storage iteration is " + checkCacheKey2);
   }
   
   
