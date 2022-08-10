@@ -346,10 +346,10 @@ function newContactAndContactGroupContainer(){
 
 
 
-function createNewRowGroup(rowPositionOfNewRowGroup) {
+function createNewRowGroup(rowPositionOfNewRowGroup, numberOfRowsToGroup) {
   SpreadsheetApp.getActive().toast("inside cerearte row position function");
   ui.prompt("inside create new row group function");
-  var rangeOfGroup = sheet.getRange(rowPositionOfNewRowGroup,1,1,1);
+  var rangeOfGroup = sheet.getRange(rowPositionOfNewRowGroup,1,numberOfRowsToGroup,1);
   rangeOfGroup.activate().shiftRowGroupDepth(1);
 }
 
@@ -388,7 +388,7 @@ function createNewContactGroups(){
   for (let i = 0; i<cGroupDimensionsNotFound.length; i++) {
   
     initialPositionoNewContactAndContactGroup = initialPositionoNewContactAndContactGroup + 1; 
-    rowGroupPositionsToAdd.push(initialPositionoNewContactAndContactGroup + 1); 
+   
     cGroupDimensionsFound.push(cGroupDimensionsNotFound[i]);
 
     //Add the contact Groups
@@ -398,7 +398,9 @@ function createNewContactGroups(){
     // if i = 0 --> sort this collumn
 
     //Create new contact Group at this position as well
-    ui.prompt("added new contact / object and its contact groups to roww number" + initialPositionoNewContactAndContactGroup);
+    //ui.prompt("added new contact / object and its contact groups to roww number" + initialPositionoNewContactAndContactGroup);
+
+    rowGroupPositionsToAdd.push(initialPositionoNewContactAndContactGroup + 1); 
   } 
 
   ui.prompt("now adding the full contact credentiasl themselves ");
@@ -407,11 +409,13 @@ function createNewContactGroups(){
   // ui.prompt("initials ")
   addContactToRow(initialPositionoNewContactAndContactGroup, fullContactCredentials);
 
-
-for (let i =0; i<rowGroupPositionsToAdd.length; i++){
   ui.prompt("now creating the rowgroups");
   ui.prompt("rowpositions to add equals " + rowGroupPositionsToAdd);
-  createNewRowGroup(parseInt(rowGroupPositionsToAdd[i]));
+
+  var numberOfRowsToGroup = rowGroupPositionsToAdd.length;
+for (let i =0; i<numberOfRowsToGroup; i++){ 
+  numberOfRowsToGroup = numberOfRowsToGroup - i;
+  createNewRowGroup(rowGroupPositionsToAdd[i], numberOfRowsToGroup);  
 }  
   }
 
