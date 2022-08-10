@@ -50,6 +50,54 @@ var userCache = CacheService.getUserCache();
 
 
 
+//functions to cache and decache variables which might have to be stored in the local memory
+
+
+function cacheFullContactCredentials(formObject){
+  ui.prompt("inside the cache full contact credentials function")
+  userCache.putAll(formObject);
+  ui.prompt("creating formobject cache succesful")
+}
+
+function cacheNewContactGroupVariables(fullContactCredentials, contactGroupDimensionNamesArray, iterationNotFound,lastFoundFirstRowExtreme, lastFoundLastRowExtreme){
+  var valuesToCache = {
+    'contactGroupDimensionNamesArray' : contactGroupDimensionNamesArray.toString(),
+    'iterationNotFound' : itertationNotFound.toString(),
+    'lastFoundFirstRowExtreme' : lastFoundFirstRowExtreme.toString(),
+    'lastFoundLastRowExtreme' : lastFoundLastRowExtreme.toString()};    
+  
+    userCache.putAll(valuesToCache);    
+  /*
+    //For testing purposes
+    var checkCacheKey = userCache.getAll(['fullContactCredentials','contactGroupDimensionNamesArray','iterationNotFound','lastFoundFirstRowExtreme','lastFoundLastRowExtreme']);
+     ui.prompt("cache is " + checkCacheKey);
+    */ 
+  }
+
+  function getCachedFullContactCredentials(){
+    var cachedFullContactCredentials = [userCache.get('fullContactCredentials')];
+    return cacheFullContactCredentials; 
+  }
+
+  function getCachedContactGroupNotFoundVars(){
+  var cachedVars = 
+  [ 
+  [userCache.get('contactGroupDimensionNamesArray')]
+  [userCache.get('iterationNotFound')],
+  [userCache.get('lastFoundFirstRowExtreme')],
+  [userCache.get('lastFoundLastRowExtreme')]
+    ];
+
+    return cachedVars;
+
+  //For testing puposes  
+  // ui.prompt("array of cache object is " + checkCacheKey2);     
+  }
+
+
+
+
+
 //// Search the (grouped) range that has hadder name "GroupedRangeHeader", within the range startRow, numrows, collumn
 //// Note that in this function, we do not yet use the fact that the range is grouped to find the group
 //// Return it's starting row number if found, return false if not found.
@@ -58,7 +106,7 @@ var userCache = CacheService.getUserCache();
 
 function  findContactGroupRowPositionExtremes(contactGroupHeader, firstRowPositionToSearch, lastRowPositionToSearch, collumnPositionToSearch) {  
   
-  //ui.prompt ("now inside the findcontactRowPositionExtremes function, where we will search for the contact group " + contactGroupHeader);
+  ui.prompt ("now inside the findcontactRowPositionExtremes function, where we will search for the contact group " + contactGroupHeader);
   
   // The ammount of rows in which we want to search for the header is equal to the substraction of the lastRowPosition and FirstRowPosition + 1
   // +1 one, since we are dealing with POSITIONS here, not indices
@@ -105,7 +153,7 @@ function  findContactGroupRowPositionExtremes(contactGroupHeader, firstRowPositi
   var firstRowPositionOfHeader = firstRowIndexcontactGroupDimension + firstRowPositionToSearch;
   var lastRowPositionOfHeader = lastRowIndexOfGroupedRangeHeader + firstRowPositionToSearch;
 
-  //ui.prompt ("We found the grouped row ! It has start position " + firstRowPositionOfHeader + "and last position " + lastRowPositionOfHeader);
+  ui.prompt ("We found the grouped row ! It has start position " + firstRowPositionOfHeader + "and last position " + lastRowPositionOfHeader);
 
   return [true, firstRowPositionOfHeader, lastRowPositionOfHeader];
   }
@@ -126,23 +174,32 @@ function findRowPositionOfNewContact(contactGroupNamesArray) {
   // for testing purposes
   //var contactGroupNamesArray = ["Krant", "Algemeen dagblad", "Politiek", "lead"]
   // Contact groups array for testing puposes now: get here the array of the contact groups of the credentials of new contact
-  //ui.prompt ("Inside finding row function"); 
-  //ui.prompt ("contact groups array is " + contactGroupNamesArray);
+  ui.prompt ("Inside finding row function"); 
+  ui.prompt ("contact groups array is " + contactGroupNamesArray);
 
   // Array consisting of the length of the number of contact groups defined in the sheet
   //NOTE: CHANGE THIS BY AN ARRAY WITH INCREMENTAL STEP OF ! UNTILL  THE LENGTH OF THE CgroupDImensions
 
-  var ccontactGroupNamesArrayLength = contactGroupNamesArray.length();
-  var collumnsPositionsToSearchArray = Array.from({length: ccontactGroupNamesArrayLength}, (_, index) => index + 1);
-  ui.prompt("collumnpositiontosearch array is " + collumnsPositionsToSearchArray);
-  //var collumnsPositionsToSearchArray = [1,2,3,4];
 
-  // For the 1st dimenstion, we want to search through the entire sheet
-  var firstRowPositionToSearch = 1;
+  /* TODO BUGGING FOR SOME REASON, FIX THIS LATER. for now just declare the array to search collumn myselrf
+  var contactGroupNamesArrayLength = contactGroupNamesArray.length();
+  var collumnsPositionsToSearchArray = [];
+
+  for (var i=0; i<contactGroupNamesArray.length; i++){
+    collumnsPositionsToSearchArray.push(i);
+  }
+*/
+
+
+  
+  var collumnsPositionsToSearchArray = [1,2,3,4];
+  ui.prompt("collumnpositiontosearch array is " + collumnsPositionsToSearchArray);
+  // For the 1st dimenstion, we want to search through the entire sheet, minus the headers
+  var firstRowPositionToSearch = 4;
   var lastRowPositionToSearch = ss.getLastRow();
   
 
- // for (var i=0; i < contactGroupNamesArray.length; i++){
+ // for (var i=0; i < contactGroupNamesArray.length; i++)
   for (var i=0; i < collumnsPositionsToSearchArray.length; i++){
 
   Logger.log("In iteration " + i + " for finding row position of new contact")
@@ -154,7 +211,7 @@ function findRowPositionOfNewContact(contactGroupNamesArray) {
 
   var rowRangeFoundcontactGroup = findContactGroupRowPositionExtremes(contactGroupDimensionToSearch, firstRowPositionToSearch, lastRowPositionToSearch, collumnPositionToSearch);
   
-  //ui.prompt ("output of the find contact Row Position extremes functin is " + rowRangeFoundcontactGroup);
+  ui.prompt ("output of the find contact Row Position extremes functin is " + rowRangeFoundcontactGroup);
 
   Logger.log(rowRangeFoundcontactGroup);
     
@@ -186,7 +243,7 @@ function addContactToRow(rowPositionOfNewContact, fullContactCredentials){
   SpreadsheetApp.getActive().toast("appended succesfully")
   //Length of the entire contact Credentials array in order to succesfully grab a range to set the values of the credentials in
   const fullCredentialsLength = fullContactCredentials.length;
-  //ui.prompt ("length of credentials is " + fullCredentialsLength);
+  ui.prompt ("length of credentials is " + fullCredentialsLength);
   //Get the range of the new contact  
   const rangeOfNewContact = sheet.getRange(rowPositionOfNewContact, 1, 1, fullCredentialsLength);
   rangeOfNewContact.setValues([fullContactCredentials]);
@@ -198,10 +255,11 @@ function addContactToRow(rowPositionOfNewContact, fullContactCredentials){
 //Note that this function gets call from the getCredentialsOfForm function
 function appendContactToRowPosition(fullContactCredentials) {
 
-  //ui.prompt ("Now inside the append contact to Row Position functions");
+  ui.prompt ("Now inside the append contact to Row Position functions");
+  ui.prompt("fullcontact credentials equals " + fullContactCredentials);
   //Get only the contact group dimensional names from the full contact credentials.
   var contactGroupDimensionNamesArray = fullContactCredentials.slice(0,4);
-  //ui.prompt ("The contact group dimension names array is " + contactGroupDimensionNamesArray);
+  ui.prompt ("The contact group dimension names array is " + contactGroupDimensionNamesArray);
  
   // SpreadsheetApp.getActive().toast("Full contact credentials is " + fullContactCredentials);
   //Note: probably have to expand this variable in order to take non full contact group dimensions into account
@@ -226,81 +284,63 @@ function appendContactToRowPosition(fullContactCredentials) {
     var lastFoundFirstRowExtreme = rowPositionOfLastContactInSameDimension[2];
     var lastFoundLastRowExtreme = rowPositionOfLastContactInSameDimension[3];
 
-    var valuesToCache = {
-      'fullContactCredentials' : fullContactCredentials.toString(),
-      'contactGroupDimensionNamesArray' : contactGroupDimensionNamesArray.toString(),
-    'iterationNotFound' : itertationNotFound.toString(),
-      'lastFoundFirstRowExtreme' : lastFoundFirstRowExtreme.toString(),
-      'lastFoundLastRowExtreme' : lastFoundLastRowExtreme.toString()    };
-
-    userCache.putAll(valuesToCache);
-
-    //For testing purposes
-var checkCacheKey = userCache.getAll(['fullContactCredentials','contactGroupDimensionNamesArray','iterationNotFound','lastFoundFirstRowExtreme','lastFoundLastRowExtreme']);
- ui.prompt("cache is " + checkCacheKey);
-//Run the modal
-
-
-    //Run the modal  
+    //Store the relevant variables wrt to the contact groups dimensions and their poitions
+    
+    //Note: think about whether is makes more sense to just put this cacheFullContactCredentials directly after the processForm function 
+    //( I think it is..)
+    cacheFullContactCredentials(fullContactCredentials);
+    cacheNewContactGroupVariables(contactGroupDimensionNamesArray, itertationNotFound,lastFoundFirstRowExtreme, lastFoundLastRowExtreme);
+     
+     
+    //Run the modal
+    contactGroupNotFoundModalDialog();
+    //From the model we will go from callback function to callback function to further guide the process when one the CGroups at input was not found  
     }
   }
 
 
-
-  function getCachedContactGroupNotFoundVars(){
-  var checkCacheKey2 = 
-  [
-  [userCache.get('fullContactCredentials')], 
-  [userCache.get('contactGroupDimensionNamesArray')]
-  [userCache.get('iterationNotFound')],
-  [userCache.get('lastFoundFirstRowExtreme')],
-  [userCache.get('lastFoundLastRowExtreme')]
-    ];
-
-  ui.prompt("array of cache object is " + checkCacheKey2);     
-  }
+function sortContactGroups(){
 
 
-  function createNewContactGroups(){
-   
-  var itertationNotFoundHere = userCache.get('wanhoop');
- // var lastFoundExtremes = SessionStorage.getItem("lastFoundExtremes_1")
-    ui.prompt("KOMOOOPPPPPPP,session storage iteration is "+ checkCacheKey2);
-  }
 
+
+}
+
+
+
+
+  // TODO
   function alterinputCGroups(){
+
+    var fullContactCredentials = getCachedFullContactCredentials();
+    var contactGroupPositional = getCachedContactGroupNotFoundVars();
+
     var itertationNotFoundHere = userCache.get('wanhoop');
-//    var lastFoundExtremes = SessionStorage.getItem("lastFoundExtremes_1")
+  //    var lastFoundExtremes = SessionStorage.getItem("lastFoundExtremes_1")
     ui.prompt("KOMOOOPPPPPPP, session storage iteration is " + checkCacheKey2);
   }
-  
-  
 
-  function evaluateModalDialog(buttonid){
-    if (buttonid == "create-new-cGroups"){
-      ui.prompt("Create new contact groups")
-      //It's working now !! SO what do we do now ?
-      createNewContactGroups();
-    }
-    else if (buttonid =="alter-input-Cgoups"){
-      ui.prompt("alter inpjut of contact groups")
-      alterinputCGroups();
-    }
+
+//This function gets called by the user response on the modal with two button: create new Cgroup  vs alter input Cgroups
+function evaluateModalDialog(buttonid){
+  if (buttonid == "create-new-cGroups"){
+    ui.prompt("Create new contact groups")
+    //It's working now !! SO what do we do now ?
+    createNewContactGroups();
   }
-
-  function contactGroupNotFoundModalDialog() {      
-    var dialog = HtmlService.createTemplateFromFile('Index-contact-groups-not-found.html').evaluate();
-    SpreadsheetApp.getUi().showModelessDialog(dialog, "Missing contact groups");
+  else if (buttonid =="alter-input-Cgoups"){
+    ui.prompt("alter inpjut of contact groups")
+    alterinputCGroups();
   }
+}
 
-
- 
-
-
-
-
+function contactGroupNotFoundModalDialog() {      
+  var dialog = HtmlService.createTemplateFromFile('Index-contact-groups-not-found.html').evaluate();
+  SpreadsheetApp.getUi().showModelessDialog(dialog, "Missing contact groups");
+}
 function getCredentialsOfForm(formObject){ 
 
+  
   var fullContactCredentials = ([
                 formObject.cGroup_1,  
                 formObject.cGroup_2,
@@ -312,11 +352,13 @@ function getCredentialsOfForm(formObject){
                 formObject.email                 
                 ]);
 
-  fullContactCredentials[7] = "'" + fullContactCredentials[7];
-  fullContactCredentials.push("@" + fullContactCredentials[6]);
+  //Put the phone number in between "" to ensure that the spreadsheet keep the original layout of the input
+  fullContactCredentials[6] = "'" + fullContactCredentials[7];
+  
 
  // const fullContactCredentials = Object.values(formObject);
   ui.prompt ("within the getcredentialsofforn function, the full contact credentials array is equal to " + fullContactCredentials);
+  cacheFullContactCredentials(formObject);
   return fullContactCredentials;
 }
 
@@ -329,86 +371,86 @@ function addContactContainer(formObject){
   appendContactToRowPosition(fullContactCredentials);
   //ui.prompt ("All done with the addContactContainer function (and thus with everything_)");
 } 
-    // Given the starting row of a grouped range, find it's properties
-    // Note that with this function, we do use the fact that it's a grouped range in order to find its properties
-    // Return: groupdepth, GroupLength
-    function propertiesGroupedRange(startIndexGroupedRow) {             
-      // Get the groupDepth
-      var groupedRangeDepth = sheet.getRowGroupDepth(startIndexGroupedRow);
-      Logger.log("grouped range depth is " + groupedRangeDepth);
-      // Get the entire rowgroup
-      var groupedRange = sheet.getRowGroup(startIndexGroupedRow,groupedRangeDepth);
-      Logger.log("Grouped range is " + groupedRange)
-      //Get the range of the rowgroup
-      var rangeOfGroupedRange = groupedRange.getRange();
-      Logger.log("range of grouped range is " + rangeOfGroupedRange)
-      //Get the length (=numrows) of the rowgroup       
-      return [groupedRangeDepth, rangeOfGroupedRange];
-  }    
-     
-     function findRangeOfInterestProperties(rangeOfInterest){
-      var startRowOfROI = rangeOfInterest.getRow();
-      Logger.log("Range of interest starts at " + startRowOfROI);
-      // and more properties 
-      var numRowsOfRoI = rangeOfInterest.getNumRows();  
-      Logger.log("Number of rows in ROI is equal to" +  numRowsOfRoI);
+  // Given the starting row of a grouped range, find it's properties
+  // Note that with this function, we do use the fact that it's a grouped range in order to find its properties
+  // Return: groupdepth, GroupLength
+function propertiesGroupedRange(startIndexGroupedRow) {             
+  // Get the groupDepth
+  var groupedRangeDepth = sheet.getRowGroupDepth(startIndexGroupedRow);
+  Logger.log("grouped range depth is " + groupedRangeDepth);
+  // Get the entire rowgroup
+  var groupedRange = sheet.getRowGroup(startIndexGroupedRow,groupedRangeDepth);
+  Logger.log("Grouped range is " + groupedRange)
+  //Get the range of the rowgroup
+  var rangeOfGroupedRange = groupedRange.getRange();
+  Logger.log("range of grouped range is " + rangeOfGroupedRange)
+  //Get the length (=numrows) of the rowgroup       
+  return [groupedRangeDepth, rangeOfGroupedRange];
+}    
+  
+function findRangeOfInterestProperties(rangeOfInterest){
+  var startRowOfROI = rangeOfInterest.getRow();
+  Logger.log("Range of interest starts at " + startRowOfROI);
+  // and more properties 
+  var numRowsOfRoI = rangeOfInterest.getNumRows();  
+  Logger.log("Number of rows in ROI is equal to" +  numRowsOfRoI);
 
-      var valuesOfROI = rangeOfInterest.getValues();
-      var propertiesROI = [startRowOfROI, numRowsOfRoI, valuesOfROI];
-      return propertiesROI;
-     }
-
-
-   function propertiesOfRowGroup(nameOfRange){
-
-    // var nameOfRange = "NRC";
-    var rangeOfInterest = findRangeOfInterest(nameOfRange);
-    var propertiesROG = findRangeOfInterestProperties(rangeOfInterest);
-    var startRowOfROG = propertiesROG[0];
-    Logger.log("Starting row of Row group is " + startRowOfROG);
-    var startIndexOfROG = parseInt(startRowOfROG) + 1;
-    Logger.log("Index of row group is " + startIndexOfROG);
-    var numRowsOfROG = propertiesROG[1];
-    Logger.log("num Rows of Row group is " + numRowsOfROG);
-    var valuesOfROG = propertiesROG[2];
-    Logger.log("Values of Row group is " + valuesOfROG);
-    var rowGroupDepth = sheet.getRowGroupDepth(startIndexOfROG);
-    Logger.log("Depth of Row Group is " + rowGroupDepth);
-    var rowGroupDefinition = sheet.getRowGroup(startIndexOfROG,rowGroupDepth);
-    Logger.log("Row group definition is " + rowGroupDefinition);
-
-    var rowGroupProperties = [startRowOfROG, startIndexOfROG, numRowsOfROG, valuesOfROG, rowGroupDepth, rowGroupDefinition];
-    return rowGroupProperties;
-    }
+  var valuesOfROI = rangeOfInterest.getValues();
+  var propertiesROI = [startRowOfROI, numRowsOfRoI, valuesOfROI];
+  return propertiesROI;
+  }
 
 
+function propertiesOfRowGroup(nameOfRange){
 
-    //Note: now you just remove the rowgroup only !!!
-    function removeRowGroup(nameOfRange, rowGroupDepth){
+  // var nameOfRange = "NRC";
+  var rangeOfInterest = findRangeOfInterest(nameOfRange);
+  var propertiesROG = findRangeOfInterestProperties(rangeOfInterest);
+  var startRowOfROG = propertiesROG[0];
+  Logger.log("Starting row of Row group is " + startRowOfROG);
+  var startIndexOfROG = parseInt(startRowOfROG) + 1;
+  Logger.log("Index of row group is " + startIndexOfROG);
+  var numRowsOfROG = propertiesROG[1];
+  Logger.log("num Rows of Row group is " + numRowsOfROG);
+  var valuesOfROG = propertiesROG[2];
+  Logger.log("Values of Row group is " + valuesOfROG);
+  var rowGroupDepth = sheet.getRowGroupDepth(startIndexOfROG);
+  Logger.log("Depth of Row Group is " + rowGroupDepth);
+  var rowGroupDefinition = sheet.getRowGroup(startIndexOfROG,rowGroupDepth);
+  Logger.log("Row group definition is " + rowGroupDefinition);
 
-     var nameOfRange = "NRC"   
-    var propertiesROG = propertiesOfRowGroup(nameOfRange);
-    var rowGroup = propertiesROG[5];
-    Logger.log("We are gonna remove rowgroup " + rowGroup);    
-    }
+  var rowGroupProperties = [startRowOfROG, startIndexOfROG, numRowsOfROG, valuesOfROG, rowGroupDepth, rowGroupDefinition];
+  return rowGroupProperties;
+}
 
-    function expandRowGroup(nameOfRange){
-    var propertiesROG = propertiesOfRowGroup(nameOfRange);
-    var rowGroup = propertiesROG[5];
-    Logger.log("We are gonna remove rowgroup " + rowGroup);   
 
-    var startRowOfROI = propertiesROI[0];
-    var numRowsOfRoI = propertiesROI[1];
-    // expand the given ROWGROUP here
-     }
 
-    function moveROItoNewPosition(nameOfRange){
-    var rangeOfInterest = findRangeOfInterest(nameOfRange);    
-    var propertiesROI = findRangeOfInterestProperties(rangeOfInterest);
-    var valuesOfROI = propertiesROI[2];
-    // Delete old ROI
-    // Create ROI on new Position
-    }
+//Note: now you just remove the rowgroup only !!!
+function removeRowGroup(nameOfRange, rowGroupDepth){
+
+  var nameOfRange = "NRC"   
+  var propertiesROG = propertiesOfRowGroup(nameOfRange);
+  var rowGroup = propertiesROG[5];
+  Logger.log("We are gonna remove rowgroup " + rowGroup);    
+  }
+
+function expandRowGroup(nameOfRange){
+  var propertiesROG = propertiesOfRowGroup(nameOfRange);
+  var rowGroup = propertiesROG[5];
+  Logger.log("We are gonna remove rowgroup " + rowGroup);   
+
+  var startRowOfROI = propertiesROI[0];
+  var numRowsOfRoI = propertiesROI[1];
+  // expand the given ROWGROUP here
+  }
+
+function moveROItoNewPosition(nameOfRange){
+  var rangeOfInterest = findRangeOfInterest(nameOfRange);    
+  var propertiesROI = findRangeOfInterestProperties(rangeOfInterest);
+  var valuesOfROI = propertiesROI[2];
+  // Delete old ROI
+  // Create ROI on new Position
+  }
 
 
 
