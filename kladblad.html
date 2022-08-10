@@ -58,30 +58,16 @@
 
 
 
+wat je doet:
 
+knip the contactGroups in het gedeelte dat wel al bestaat,. en het gedeelte dat nog niet bestaat
 
-//Maybe check later if we can create generic cache functions for the differernt relevant variables in order to store these already once they are created
-//Maybe check later if we can create generic cache functions for the differernt relevant variables in order to store these already once they are created
+Voor het gedeelte dat nig niet bestaat (vb CD3, CD4):
 
+--> create array CD1, CD2, CD3
+append array and create new rowgroup ONLY in this row
 
+--> create array CD1, CD@, CD3, CD4
+append array under previous array and create new rowgroup ONLY in this row
 
-// TODO
-//We simply put the new 
-function createNewContactGroups(){
-
-  //get the cached full conctact credentials
-  var fullContactCredentials = getCachedFullContactCredentials();
-  //get the last row which
-  var lastDataCollumn = SpreadsheetApp.getActiveSheet().getLastRow();
-
-
-
-
-
-  // for testing purposes
-  var itertationNotFoundHere = userCache.get('wanhoop');
-  // var lastFoundExtremes = SessionStorage.getItem("lastFoundExtremes_1")
-    ui.prompt("KOMOOOPPPPPPP,session storage iteration is "+ checkCacheKey2);
-  }
-
-
+--> append fullContactCredentials array under this rowgroup
