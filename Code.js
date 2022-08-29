@@ -365,15 +365,19 @@ function evaluateInputContactCreds(fullContactCredentials) {
     var lastFoundFirstRowExtreme = rowPositionOfLastContactInSameDimension[2];
     var lastFoundLastRowExtreme = rowPositionOfLastContactInSameDimension[3];
 
-    cacheNewContactGroupVariables(contactGroupDimensionNamesArray, itertationNotFound,lastFoundFirstRowExtreme, lastFoundLastRowExtreme);
-    contactGroupNotFoundModalDialog();
-    
     //Store the relevant variables wrt to the contact groups dimensions and their poitions
+    cacheNewContactGroupVariables(contactGroupDimensionNamesArray, itertationNotFound,lastFoundFirstRowExtreme, lastFoundLastRowExtreme);
     
+    //Create modal dialog qustioning if u want to change the input contacts 
+    var dialogFormHTMLTitle = "Index-contact-groups-not-found.html";
+    var dialogTitle = "Missing contact groups";  
+
+    var dialogForm = createModalDialog(dialogFormHTMLTitle) 
     
-    
-     
-    //Run the modal
+    setModalDialog(dialogForm, dialogTitle);
+
+    return dialogForm;
+  
     
     //From the model we will go from callback function to callback function to further guide the process when one the CGroups at input was not found  
     }
@@ -601,7 +605,7 @@ function moveROItoNewPosition(nameOfRange){
 function getAvailableTags(tagColumn) {
   var data = sheet.getDataRange().getValues();
   var headers = 2; // number of header rows to skip at top
-  ; // column # (0-based) containing tag
+  // ; // column # (0-based) containing tag
 
   var availableTags = [];
 
@@ -609,7 +613,7 @@ function getAvailableTags(tagColumn) {
     availableTags.push(data[row][tagColumn]);
   }
 
-  return( availableTags );
+  return(availableTags);
 }
 
 //INCLUDE HTML PARTS, EG. JAVASCRIPT, CSS, OTHER HTML FILES
@@ -617,17 +621,26 @@ function include(filename) {
   return HtmlService.createHtmlOutputFromFile(filename).getContent();
 }
 
-
 //OPEN THE FORM IN SIDEBAR 
-function addContactFormInput() {      
-  var form = HtmlService.createTemplateFromFile('Index-add-contact.html').evaluate().setTitle('Contact Details');
+function createSideBar(sideBarForm, sideBarTitle) {      
+  var form = HtmlService.createTemplateFromFile(sideBarForm.toString()).evaluate().setTitle(sideBarTitle.toString());
   SpreadsheetApp.getUi().showSidebar(form);
 }
 
-function contactGroupNotFoundModalDialog() {      
-  var dialog = HtmlService.createTemplateFromFile('Index-contact-groups-not-found.html').evaluate();
-  SpreadsheetApp.getUi().showModelessDialog(dialog, "Missing contact groups");
+// Create the template for the modal dialog form; in this way we can add the inner HTML before showing it
+function createModalDialog(dialogFormHTMLTitle) {  
+  var form = HtmlService.createTemplateFromFile(dialogFormHTMLTitle.toString()); 
+  return form;
 }
+
+//Evaluate and show the modal dialog form
+function setModalDialog(dialogForm, dialogTitle) {
+  var form = dialogForm.evaluate();
+  SpreadsheetApp.getUi().showModelessDialog(form, dialogTitle.toString());
+}
+
+
+
 
 
 function guiAlterContactGroups() {
@@ -683,7 +696,7 @@ function guiDialog() {
  //Submenu 1: add a new contact group
  // NOTE: this only means the contact group is    added to the spreadsheet self, NOT to the Google contacts  (this only happens when updating contacts)
   var subMenuShowDialogSidebar = ui.createMenu("Add contact")
-    .addItem("Add new contact", 'addContactFormInput')
+    .addItem("Add new contact", 'getContactInputForm')
     ui.createMenu('Contacts')
       //Reference submenu
     .addSubMenu(subMenuShowDialogSidebar)
@@ -698,24 +711,47 @@ function onOpen(e) {
 
 }
 
-
-
-
-
-function test(){
-  const test1 = "Naam1";
-  const test2 = "Naam2";
-  const test3 = "Naam3";
-  const test4 = "Naam4";
-
-  const testarray = ["testarray1", "testarray2", "testarray3", "testarray4"];
-
-
+// Try to use this function as base for the getting of the contact credentials
+function getContactInputForm(){
+  var contactInputForm = createSideBar("Index-add-contact.html", "Contact Details");
 }
 
 
+
+
+function testVars(){
+  var test1 = "Naam1";
+  var test2 = "Naam2";
+  var test3 = "Naam3";
+  var test4 = "Naam4";
+  var testArray = ["1", "2", "3", "4", "5", "6", "7", "8"];
+
+
+  return testArray; 
+}
+
+function test(){
+
+  var testArray = testVars();
+
+  dialogFormHTMLTitle = 'test.html';
+  dialogTitle = "Test";
+
+  var modalDialog = createModalDialog(dialogFormHTMLTitle);
+  modalDialog.cred_1 = testArray[0].toString();
+  modalDialog.cred_2 = testArray[1].toString();
+  modalDialog.cred_3 = testArray[2].toString();
+  modalDialog.cred_4 = testArray[3].toString();
+  modalDialog.cGroup_1 = testArray[4].toString();
+  modalDialog.cGroup_2 = testArray[5].toString();
+  modalDialog.cGroup_3 = testArray[6].toString();
+  modalDialog.cGroup_4 = testArray[7].toString();
+
+  setModalDialog(modalDialog, dialogTitle);
+}
+
 function guiTest(){
-var testThisFunction = ui.createMenu('Testing')
+var testThisFunction = ui.createMenu('Testing') 
   .addItem("testing", 'test')
   .addToUi()
 }

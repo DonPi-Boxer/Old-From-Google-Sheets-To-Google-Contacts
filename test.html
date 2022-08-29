@@ -1,0 +1,46 @@
+  <!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <script>
+    function changeInnerHTML(buttonid, newValue) {
+        document.getElementById(buttonid).innerHTML = newValue;}
+    function setJsVar(buttonid){
+        var valueToPut = google.script.run(testVars)
+        changeInnerHTML(buttonid, valueToPut.toString());
+        } 
+     google.script.host.setHeight(400);      
+  </script>
+  </head>
+  <body>
+
+     <h2 id="header_creds">Credentials</h2>
+
+         <p id="cred_1"><b> First name: </b>  
+             <?= cred_1 ?>
+         </p>   
+         <p id="cred_2"><b> Last name: </b>
+             <?= cred_2 ?>
+         </p> 
+         <p id="cred_3"><b> Phone number: </b>
+             <?= cred_3 ?>
+         </p>   
+         <p id="cred_4"><b> E-mail: </b>
+             <?= cred_4 ?>
+         </p>
+
+     <h2 id="header_cGroups">Contact groups</h1>
+         <p id="cGroup_1"><b> Organization type:  </b>
+             <?= cGroup_1 ?>
+             </p>   
+         <p id="cGroup_2"><b> Organization: </b>
+             <?= cGroup_2 ?>
+        </p> 
+         <p id="cGroup_3"><b> Team: </b>
+             <?= cGroup_3 ?> 
+        </p>   
+        <p id="cGroup_4"><b> Role: </b>
+             <?= cGroup_4 ?>
+        </p> 
+   </body>
+</html>

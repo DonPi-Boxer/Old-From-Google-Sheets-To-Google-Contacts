@@ -71,3 +71,38 @@ append array and create new rowgroup ONLY in this row
 append array under previous array and create new rowgroup ONLY in this row
 
 --> append fullContactCredentials array under this rowgroup
+
+//Submenu 1: add a new contact group
+// NOTE: this only means the contact group is    added to the spreadsheet self, NOT to the Google contacts  (this only happens when updating contacts)
+ var subMenuShowDialogSidebar = ui.createMenu("Add contact")
+   .addItem("Add new contact", 'createSideBar("Index-add-contact.html", "Contact Details"))
+   ui.createMenu('Contacts')
+     //Reference submenu
+   .addSubMenu(subMenuShowDialogSidebar)
+   //  .addSeparator()
+   //  .addSubMenu(subMenuclear)  // Call submenu for updaten here
+   .addToUi()
+}
+
+
+
+    <h1 id="header">Hello World</h1>
+    <p id="testVarInput"> blablablablablablablablablablabl</p>
+        <td>
+            <button id="testVarInput" 
+            onclick="setJsVar(this.id)">test</button>
+        </td>
+    <p id="test">Greetings</p>        
+          <td>
+            <button id="test" 
+            onclick="changeInnerHTML(this.id, 'Bonjour')">test</button>
+        </td>
+
+
+
+
+
+
+
+
+
