@@ -50,9 +50,44 @@ var userCache = CacheService.getUserCache();
 
 
 
+// Underneath is all about importing the contact to google contacts
+function importContacts() {ContactsApp.createContac
+  for (var i = 0; i < data.length; i++) {
+    var row = data[i];
+    var firstName = row[firstNameIndex];
+    var lastName = row[lastNameIndex];
+    var emailAdd = row[emailIndex];
+    var teamAdd = row[contactgroupIndex];
+    var positionAdd = row[positionIndex];
+    var mobileAdd = row[mobileIndex];
+    var statusRow = row[statusIndex];
+
+    if (statusRow != "Uploaded") {
+      var contact = ContactsApp.createContact(firstName, lastName, emailAdd);
+
+      if (mobileAdd != "" ) {
+        contact.addPhone(ContactsApp.Field.MOBILE_PHONE, mobileAdd);
+      }
+
+      if (teamAdd != "" ) {
+        contact.addCompany(teamAdd, positionAdd);
+
+        // NOT sure what is meant by group over here
+        var group = ContactsApp.getContactGroup("System Group: My Contacts");
+        group.addContact(contact);
+
+        // Finally, once we have uploaded the contact, set Status to "Uploaded".
+        // --> this does not work, as all users of the sheet will see this message...
+        for (var iRow = 3; iRow <= MaxRow; iRow++) {
+          sheet.getRange("K" + iRow).setValue('Uploaded');
+        }
+      }
+    }
+  }
+}
+
+
 //functions to cache and decache variables which might have to be stored in the local memory
-
-
 function cacheNewContactGroupVariables(contactGroupDimensionNamesArray, iterationNotFound,lastFoundFirstRowExtreme, lastFoundLastRowExtreme){
   var valuesToCache = {
     'contactGroupDimensionNamesArray' : contactGroupDimensionNamesArray.toString(),
@@ -117,7 +152,18 @@ function cacheFullContactCredentials(fullContactCredentials){
 
 
 
-//// Search the (grouped) range that has hadder name "GroupedRangeHeader", within the range startRow, numrows, collumn
+  function addContactContainer(formObject){
+    ////ui.prompt ("In the add contact container function, going into the getCredentialsOfForm functions");
+    var fullContactCredentials = getCredentialsOfFormObject(formObject);
+    // function runs into the getcredentials of form, but not further than there. where goes this wrong ?
+    ////ui.prompt ("In de add contact container, the full contact credentials array is equal to " + fullContactCredentials);
+    ////ui.prompt ("Moving withinin the add contact container function from the get credentials of form function into the appendcontactToRowPosition function");
+    evaluateInputContactCreds(fullContactCredentials);
+    ////ui.prompt ("All done with the addContactContainer function (and thus with everything_)");
+  }  
+
+
+  //// Search the (grouped) range that has hadder name "GroupedRangeHeader", within the range startRow, numrows, collumn
 //// Note that in this function, we do not yet use the fact that the range is grouped to find the group
 //// Return it's starting row number if found, return false if not found.
 //Ensure that the groupedRangeHeader is a string !!!
@@ -263,6 +309,7 @@ function getRangeOfNewContactToAdd(rowPositionOfNewContact, fullContactCredentia
 }
 
 
+
 //If none of the contact groups does not exist ready
 function addContactAndNewContactGroup(fullContactCredentials){
   var lastRow = sheet.getLastRow();
@@ -288,7 +335,7 @@ function addContactToRow(rowPositionOfNewContact, fullContactCredentials){
 
 //Parse all functions and let the magic happen niffo
 //Note that this function gets call from the getCredentialsOfForm function
-function appendContactToRowPosition(fullContactCredentials) {
+function evaluateInputContactCreds(fullContactCredentials) {
 
   //ui.prompt ("Now inside the append contact to Row Position functions");
   //ui.prompt("fullcontact credentials equals " + fullContactCredentials);
@@ -311,7 +358,6 @@ function appendContactToRowPosition(fullContactCredentials) {
   addContactToRow(rowPositionOfNewContact, fullContactCredentials);
   }
 
-
   //If the last entry is not true, cache all relevant variables for later. Run the modal for asking whether to add the new contact, or to alter the input Cgroups
   else if (rowPositionOfLastContactInSameDimension[0] == false){    
     //ui.prompt("Do something");
@@ -332,19 +378,6 @@ function appendContactToRowPosition(fullContactCredentials) {
     //From the model we will go from callback function to callback function to further guide the process when one the CGroups at input was not found  
     }
   }
-
-
-function sortContactGroups(){
-
-
-
-}
-
-function newContactAndContactGroupContainer(){
-  var fullContactCredentials = getCachedContactCredentialsInArray();
-}
-
-
 
 function createNewRowGroup(rowPositionOfNewRowGroup, numberOfRowsToGroup) {
   SpreadsheetApp.getActive().toast("inside cerearte row position function");
@@ -420,7 +453,12 @@ for (let i =0; i<numberOfRowsToGroup; i++){
   }
 
 
+  function newContactAndContactGroupContainer(){
+    var fullContactCredentials = getCachedContactCredentialsInArray();
 
+  // works furhter on this 
+  }
+  
 
 
 // TODO
@@ -434,24 +472,6 @@ function alterinputCGroups(){
   //ui.prompt("KOMOOOPPPPPPP, session storage iteration is " + checkCacheKey2);
 }
 
-
-//This function gets called by the user response on the modal with two button: create new Cgroup  vs alter input Cgroups
-function evaluateModalDialog(buttonid){
-  if (buttonid == "create-new-cGroups"){
-    //ui.prompt("Create new contact groups")
-    //It's working now !! SO what do we do now ?
-    createNewContactGroups();
-  }
-  else if (buttonid =="alter-input-Cgoups"){
-    //ui.prompt("alter inpjut of contact groups")
-    alterinputCGroups();
-  }
-}
-
-function contactGroupNotFoundModalDialog() {      
-  var dialog = HtmlService.createTemplateFromFile('Index-contact-groups-not-found.html').evaluate();
-  SpreadsheetApp.getUi().showModelessDialog(dialog, "Missing contact groups");
-}
 
 
 
@@ -477,15 +497,20 @@ function getCredentialsOfFormObject(formObject){
   return fullContactCredentials;
 }
 
-function addContactContainer(formObject){
-  ////ui.prompt ("In the add contact container function, going into the getCredentialsOfForm functions");
-  var fullContactCredentials = getCredentialsOfFormObject(formObject);
-  // function runs into the getcredentials of form, but not further than there. where goes this wrong ?
-  ////ui.prompt ("In de add contact container, the full contact credentials array is equal to " + fullContactCredentials);
-  ////ui.prompt ("Moving withinin the add contact container function from the get credentials of form function into the appendcontactToRowPosition function");
-  appendContactToRowPosition(fullContactCredentials);
-  ////ui.prompt ("All done with the addContactContainer function (and thus with everything_)");
-} 
+
+//This function gets called by the user response on the modal with two button: create new Cgroup  vs alter input Cgroups
+function cGroupNotFoundModalDialog(buttonid){
+  if (buttonid == "create-new-cGroups"){
+    //ui.prompt("Create new contact groups")
+    //It's working now !! SO what do we do now ?
+    createNewContactGroups();
+  }
+  else if (buttonid =="alter-input-Cgoups"){
+    //ui.prompt("alter inpjut of contact groups")
+    alterinputCGroups();
+  }
+}
+
   // Given the starting row of a grouped range, find it's properties
   // Note that with this function, we do use the fact that it's a grouped range in order to find its properties
   // Return: groupdepth, GroupLength
@@ -514,6 +539,7 @@ function findRangeOfInterestProperties(rangeOfInterest){
   var propertiesROI = [startRowOfROI, numRowsOfRoI, valuesOfROI];
   return propertiesROI;
   }
+
 
 
 function propertiesOfRowGroup(nameOfRange){
@@ -570,74 +596,25 @@ function moveROItoNewPosition(nameOfRange){
 
 
 
-function importContacts() {ContactsApp.createContac
-  for (var i = 0; i < data.length; i++) {
-    var row = data[i];
-    var firstName = row[firstNameIndex];
-    var lastName = row[lastNameIndex];
-    var emailAdd = row[emailIndex];
-    var teamAdd = row[contactgroupIndex];
-    var positionAdd = row[positionIndex];
-    var mobileAdd = row[mobileIndex];
-    var statusRow = row[statusIndex];
 
-    if (statusRow != "Uploaded") {
-      var contact = ContactsApp.createContact(firstName, lastName, emailAdd);
+// Get tags from sheet to use in the autosuggestion of the contact creds form
+function getAvailableTags(tagColumn) {
+  var data = sheet.getDataRange().getValues();
+  var headers = 2; // number of header rows to skip at top
+  ; // column # (0-based) containing tag
 
-      if (mobileAdd != "" ) {
-        contact.addPhone(ContactsApp.Field.MOBILE_PHONE, mobileAdd);
-      }
+  var availableTags = [];
 
-      if (teamAdd != "" ) {
-        contact.addCompany(teamAdd, positionAdd);
-
-        // NOT sure what is meant by group over here
-        var group = ContactsApp.getContactGroup("System Group: My Contacts");
-        group.addContact(contact);
-
-        // Finally, once we have uploaded the contact, set Status to "Uploaded".
-        // --> this does not work, as all users of the sheet will see this message...
-        for (var iRow = 3; iRow <= MaxRow; iRow++) {
-          sheet.getRange("K" + iRow).setValue('Uploaded');
-        }
-      }
-    }
+  for (var row=headers; row < data.length; row++) {
+    availableTags.push(data[row][tagColumn]);
   }
+
+  return( availableTags );
 }
 
-
-//creeer totaal menu en zet de submenu's er in
-function setAllGUIs() {
-   //Submenu 2: Alter contact group. That is, alter name, function etc etc
-   //Submenu 3: Delete an existing contact group
-   // GuiAlterContacts()
-   // guiAlterContacts()
-   //  guiAlterContactGroups()
-    
-    guiDialog()
-    guiTest()
-    gUIimportcontacts()
-}
-
-
-function guiTest(){
-var testModalDialog = ui.createMenu('Testing')
-  .addItem("testing", 'test')
-  .addToUi()
-}
-
-function guiDialog() {
-
-  //Submenu 1: add a new contact group
-  // NOTE: this only means the contact group is    added to the spreadsheet self, NOT to the Google contacts  (this only happens when updating contacts)
-   var subMenuShowDialogSidebar = ui.createMenu("Add contact")
-     .addItem("Add new contact", 'addContactFormInput')
-     ui.createMenu('Contacts')
-       //Reference submenu
-     .addSubMenu(subMenuShowDialogSidebar)
-     //  .addSeparator()
-     //  .addSubMenu(subMenuclear)  // Call submenu for updaten here
-     .addToUi()
+//INCLUDE HTML PARTS, EG. JAVASCRIPT, CSS, OTHER HTML FILES
+function include(filename) {
+  return HtmlService.createHtmlOutputFromFile(filename).getContent();
 }
 
 
@@ -647,17 +624,10 @@ function addContactFormInput() {
   SpreadsheetApp.getUi().showSidebar(form);
 }
 
-//
-
-
-
-
-
-//INCLUDE HTML PARTS, EG. JAVASCRIPT, CSS, OTHER HTML FILES
-function include(filename) {
-  return HtmlService.createHtmlOutputFromFile(filename).getContent();
+function contactGroupNotFoundModalDialog() {      
+  var dialog = HtmlService.createTemplateFromFile('Index-contact-groups-not-found.html').evaluate();
+  SpreadsheetApp.getUi().showModelessDialog(dialog, "Missing contact groups");
 }
-
 
 
 function guiAlterContactGroups() {
@@ -695,28 +665,57 @@ function gUIimportcontacts() {
 }
 
 
+//creeer totaal menu en zet de submenu's er in
+function setAllGUIs() {
+  //Submenu 2: Alter contact group. That is, alter name, function etc etc
+  //Submenu 3: Delete an existing contact group
+  // GuiAlterContacts()
+  // guiAlterContacts()
+  //  guiAlterContactGroups()
+   
+   guiDialog()
+   guiTest()
+   gUIimportcontacts()
+}
 
+function guiDialog() {
+
+ //Submenu 1: add a new contact group
+ // NOTE: this only means the contact group is    added to the spreadsheet self, NOT to the Google contacts  (this only happens when updating contacts)
+  var subMenuShowDialogSidebar = ui.createMenu("Add contact")
+    .addItem("Add new contact", 'addContactFormInput')
+    ui.createMenu('Contacts')
+      //Reference submenu
+    .addSubMenu(subMenuShowDialogSidebar)
+    //  .addSeparator()
+    //  .addSubMenu(subMenuclear)  // Call submenu for updaten here
+    .addToUi()
+}
 
 function onOpen(e) {
 
   setAllGUIs()
 
 }
-// Underneath is all about importing the contact to google contacts
 
 
 
-// Get tags from sheet
-function getAvailableTags(tagColumn) {
-  var data = sheet.getDataRange().getValues();
-  var headers = 2; // number of header rows to skip at top
-  ; // column # (0-based) containing tag
 
-  var availableTags = [];
 
-  for (var row=headers; row < data.length; row++) {
-    availableTags.push(data[row][tagColumn]);
-  }
+function test(){
+  const test1 = "Naam1";
+  const test2 = "Naam2";
+  const test3 = "Naam3";
+  const test4 = "Naam4";
 
-  return( availableTags );
+  const testarray = ["testarray1", "testarray2", "testarray3", "testarray4"];
+
+
+}
+
+
+function guiTest(){
+var testThisFunction = ui.createMenu('Testing')
+  .addItem("testing", 'test')
+  .addToUi()
 }

@@ -6,7 +6,7 @@
       function createNewContactGroups(buttonid) {
         google.script.run
         .withSuccessHandler(google.script.host.close)
-        .evaluateModalDialog(buttonid);     
+        .cGroupNotFoundModalDialog(buttonid);     
 }
   </script>
   </head>
