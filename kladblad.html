@@ -106,3 +106,121 @@ append array under previous array and create new rowgroup ONLY in this row
 
 
 
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <base target="_top">
+            <script>
+            function changeInnerHTML(buttonid, newValue) {
+                document.getElementById(buttonid).innerHTML = newValue;}
+            function setJsVar(buttonid){
+                var valueToPut = google.script.run(testVars)
+                changeInnerHTML(buttonid, valueToPut.toString());
+                } 
+             google.script.host.setHeight(400);      
+          </script>
+          </head>
+          <body>
+        
+             <h2 id="header_creds">Credentials</h2>
+        
+             <div class ="row"> 
+                <div class="column"><b>First name:</b></div>
+                <div class="column"><p id="cred_1"><?= cred_1 ?></p></div> 
+             </div>
+             <div class ="row">
+                <div class="column"><b> Last name: </b></div> 
+                <div class="column"><p id="cred_2"><?= cred_2 ?></p></div>            
+             </div>
+             <div class ="row">   
+                <div class="column"><b> Phone number:</b></div>         
+                <div class="column"><p id="cred_3"><?= cred_3 ?></p><div class="collumn"></div>  
+             </div>
+             <div class ="row">     
+                <div class="column"><b> E-mail: </b></div>
+                <div class="column"><p id="cred_4"><?= cred_4 ?></p></div>
+             </div> 
+                
+                   
+                  
+                  
+                 
+                </div>
+             </div>
+             <h2 id="header_cGroups">Contact groups</h1>
+             <div class="row">
+                <div class="column">
+                    <b> Organization type:  </b>
+                    <b> Organization: </b>   
+                    <b> Team: </b> 
+                    <b> Role: </b>
+                </div>        
+                <div class="column">
+                 <p id="cGroup_1"><?= cGroup_1 ?></p>   
+                 <p id="cGroup_2"><?= cGroup_2 ?></p> 
+                 <p id="cGroup_3"><?= cGroup_3 ?></p>   
+                 <p id="cGroup_4"><?= cGroup_4 ?></p>
+                </div>
+             </div>     
+           </body>
+        </html>
+        
+        
+        <!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+  box-sizing: border-box;
+}
+
+/* Create two equal columns that floats next to each other */
+.column {
+  float: left;
+  width: 50%;
+  padding: 10px;
+  height: 300px; /* Should be removed. Only for demonstration */
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+</style>
+</head>
+<body>
+
+<h3>Credentials</h3>
+
+<div class="row">
+  <div class="column">
+    <h2>Input type</h2>
+    <p>First Name</p>
+  </div>
+  <div class="column">
+    <h2>Give input</h2>
+    <p>Naam</p>
+  </div>
+</div>
+
+<h3>Contact groups</h3>
+
+<div class="row">
+  <div class="column">
+    <h2>Input type</h2>
+    <b> Organization type:  </b>
+    <b> Organization: </b>   
+    <b> Team: </b> 
+    <b> Role: </b>
+  </div>
+  <div class="column">
+    <h2>Given input</h2>
+    <p>Naam</p>
+  </div>
+</div>
+
+</body>
+</html>
