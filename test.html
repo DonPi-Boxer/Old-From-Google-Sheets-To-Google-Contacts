@@ -6,20 +6,18 @@
           box-sizing: border-box;
         }
         
-        /* Create two equal columns that floats next to each other */
-        .column {
-          float: left;
-          width: 40%;
-          padding: 10px;
+      .column {
+      float: left;
+      width: 33.33%;
+    }
+
+    /* Clear floats after the columns */
+    .row:after {
+      content: "";
+      display: table;
+      clear: both;
+    }
         
-        }
-        
-        /* Clear floats after the columns */
-        .row:after {
-          content: "";
-          display: table;
-          clear: both;
-        }
         </style>
     <base target="_top">
     <script>
@@ -35,31 +33,48 @@
   <body>
 
      <h3>Credentials</h3>
-     <div class="column">
-        <p><b> First name:</b></p>
-        <p><b> Last name:</b></p> 
-        <p><b> Phone number:</b></p>
-        <p><b> E-mail:</b></p> 
-    </div> 
-    <div class="column">
-        <p id="cred_1"><?= cred_1 ?></p>   
-        <p id="cred_2"><?= cred_2 ?></p>
-        <p id="cred_3"><?= cred_3 ?></p> 
-        <p id="cred_4"><?= cred_4 ?></p>
+     <div class="row">
+      <div class="column">
+          <p><b> First name:</b></p>
+          <p><b> Last name:</b></p> 
+          <p><b> Phone number:</b></p>
+          <p><b> E-mail:</b></p> 
+      </div> 
+      <div class="column">
+          <p id="first_name"><?= cred_1 ?></p>   
+          <p id="last_name"><?= cred_2 ?></p>
+          <p id="email"><?= cred_3 ?></p> 
+          <p id="phone_number"><?= cred_4 ?></p>
+      </div>
+      <div class="column">
+        <p><input type="Button" value="Change" id="change_first_name"></p> 
+        <p><input type="Button" value="Change" id="change_last_name"></p>
+        <p><input type="Button" value="Change" id="change_email"></p>
+        <p><input type="Button" value="Change" id="change_phone_number"></p>
+      </div>
     </div>
+    
           
      <h3>Contact groups</h3>
-     <div class="column">
-        <p><b> Organization type:</b></p>
-        <p><b> Organization name:</b></p> 
-        <p><b> Organization team:</b></p>
-        <p><b>Role in Team:</b></p>
-     </div>   
-     <div class="column">
-        <p id="cGroup_1"><?= cGroup_1 ?></p>   
-        <p id="cGroup_2"><?= cGroup_2 ?></p> 
-        <p id="cGroup_3"><?= cGroup_3 ?></p>   
-        <p id="cGroup_4"><?= cGroup_4 ?></p> 
-     </div>   
+     <div class="row">
+      <div class="column">
+          <p><b> Organization type:</b></p>
+          <p><b> Organization name:</b></p> 
+          <p><b> Organization team:</b></p>
+          <p><b>Role in Team:</b></p>
+      </div>   
+      <div class="column">
+          <p id="cGroup_1"><?= cGroup_1 ?></p>   
+          <p id="cGroup_2"><?= cGroup_2 ?></p> 
+          <p id="cGroup_3"><?= cGroup_3 ?></p>   
+          <p id="cGroup_4"><?= cGroup_4 ?></p> 
+      </div>
+      <div class="column">
+        <p><input type="Button" value="Change" id="change_cGroup_1"></p> 
+        <p><input type="Button" value="Change" id="change_cGroup_2"></p>
+        <p><input type="Button" value="Change" id="change_cGroup_3"></p>
+        <p><input type="Button" value="Change" id="change_cGroup_4"></p>
+      </div>
+     </div>    
    </body>
 </html>
