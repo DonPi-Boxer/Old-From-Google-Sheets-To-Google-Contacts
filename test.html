@@ -1,3 +1,4 @@
+ 
   <!DOCTYPE html>
 <html>
   <head>
@@ -21,13 +22,22 @@
         </style>
     <base target="_top">
     <script>
-    function changeInnerHTML(buttonid, newValue) {
-        document.getElementById(buttonid).innerHTML = newValue;}
-    function setJsVar(buttonid){
-        var valueToPut = google.script.run(testVars)
-        changeInnerHTML(buttonid, valueToPut.toString());
-        } 
-     google.script.host.setHeight(500);      
+  function changeButtonValue(idToChange) {
+    const elem = document.getElementById(idToChange);
+       if (elem.value == "Unchange") {       
+      elem.value= "Change"
+    }else {     
+      elem.value = "Unchange"
+    }      
+  } 
+
+  function setJsVar(idToChange){
+    var valueToPut = google.script.run(testVars)
+    changeInnerHTML(idToChange, valueToPut.toString());
+  } 
+    google.script.host.setHeight(500);    
+  function textToInput()  {   
+} 
   </script>
   </head>
   <body>
@@ -41,19 +51,22 @@
           <p><b> E-mail:</b></p> 
       </div> 
       <div class="column">
-          <p id="first_name"><?= cred_1 ?></p>   
+          <p id="test"><?= cred_1 ?></p>   
           <p id="last_name"><?= cred_2 ?></p>
           <p id="email"><?= cred_3 ?></p> 
           <p id="phone_number"><?= cred_4 ?></p>
       </div>
       <div class="column">
-        <p><input type="Button" value="Change" id="change_first_name"></p> 
-        <p><input type="Button" value="Change" id="change_last_name"></p>
-        <p><input type="Button" value="Change" id="change_email"></p>
-        <p><input type="Button" value="Change" id="change_phone_number"></p>
+      <input onclick='changeButtonValue(this.id)'
+      type ="button" value="Change" id="button_first_name"/> 
+      <input onclick='changeButtonValue(this.id)'
+      type ="button" value="Change" id="button_last_name"/>
+      <input onclick='changeButtonValue(this.id)'
+      type ="button" value="Change" id="butten_phone_number"/>
+      <input onclick='changeButtonValue(this.id)'
+      type ="button" value="Change" id="button_email"/>
       </div>
-    </div>
-    
+    </div>    
           
      <h3>Contact groups</h3>
      <div class="row">
@@ -70,10 +83,14 @@
           <p id="cGroup_4"><?= cGroup_4 ?></p> 
       </div>
       <div class="column">
-        <p><input type="Button" value="Change" id="change_cGroup_1"></p> 
-        <p><input type="Button" value="Change" id="change_cGroup_2"></p>
-        <p><input type="Button" value="Change" id="change_cGroup_3"></p>
-        <p><input type="Button" value="Change" id="change_cGroup_4"></p>
+      <input onclick='changeButtonValue(this.id)'
+      type ="button" value="Change" id="button_first_name"/> 
+      <input onclick='changeButtonValue(this.id)'
+      type ="button" value="Change" id="button_last_name"/>
+      <input onclick='changeButtonValue(this.id)'
+      type ="button" value="Change" id="butten_phone_number"/>
+      <input onclick='changeButtonValue(this.id)'
+      type ="button" value="Change" id="button_email"/>       
       </div>
      </div>    
    </body>
