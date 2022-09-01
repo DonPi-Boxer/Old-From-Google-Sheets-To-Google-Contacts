@@ -31,6 +31,25 @@
     }      
   } 
 
+  function changeInputField(idToChange, testLiteral) {
+    const elem = document.getElementById(idToChange);
+    
+    if (elem.innerHTML ==  testLiteral) {
+    elem.innerHTML =  "<input type='text''value='' id=" + idToChange + "/></p>";  
+       
+  }else
+    {
+      elem.innerHTML =testLiteral; 
+    }
+  
+          }
+
+
+  function changeOnClick(idToChangeButton, idToChangeText, testLiteral) {
+    changeButtonValue(idToChangeButton);
+    changeInputField(idToChangeText, testLiteral);
+  }
+
   function setJsVar(idToChange){
     var valueToPut = google.script.run(testVars)
     changeInnerHTML(idToChange, valueToPut.toString());
@@ -41,7 +60,9 @@
   </script>
   </head>
   <body>
-
+    <h2> Confirmation: Adapt possible mistakes and then submit.
+         Contact Groups with a *, are created as new when submitted 
+    </h2>
      <h3>Credentials</h3>
      <div class="row">
       <div class="column">
@@ -50,21 +71,21 @@
           <p><b> Phone number:</b></p>
           <p><b> E-mail:</b></p> 
       </div> 
-      <div class="column">
-          <p id="test"><?= cred_1 ?></p>   
+      <div class="column">  
+          <p id="first_name"><?= cred_1 ?></p>   
           <p id="last_name"><?= cred_2 ?></p>
-          <p id="email"><?= cred_3 ?></p> 
-          <p id="phone_number"><?= cred_4 ?></p>
+          <p id="phone_number"><?= cred_3 ?></p> 
+          <p id="email"><?= cred_4 ?></p>
       </div>
       <div class="column">
-      <input onclick='changeButtonValue(this.id)'
-      type ="button" value="Change" id="button_first_name"/> 
-      <input onclick='changeButtonValue(this.id)'
-      type ="button" value="Change" id="button_last_name"/>
-      <input onclick='changeButtonValue(this.id)'
-      type ="button" value="Change" id="butten_phone_number"/>
-      <input onclick='changeButtonValue(this.id)'
-      type ="button" value="Change" id="button_email"/>
+      <p><input onclick='changeOnClick(this.id, "first_name", <?= cred_1 ?>)'
+      type ="button" value="Change" id="button_first_name"/></p>
+      <p><input onclick='changeOnClick(this.id, "last_name", <?= cred_2 ?>)'
+      type ="button" value="Change" id="button_last_name"/></p>
+      <p><input onclick='changeOnClick(this.id, "phone_number", <?= cred_3 ?>)'
+      type ="button" value="Change" id="butten_phone_number"/></p>
+      <p><input onclick='changeOnClick(this.id, "email", <?= cred_4 ?>)'
+      type ="button" value="Change" id="button_email"/></p>
       </div>
     </div>    
           
@@ -83,14 +104,14 @@
           <p id="cGroup_4"><?= cGroup_4 ?></p> 
       </div>
       <div class="column">
-      <input onclick='changeButtonValue(this.id)'
-      type ="button" value="Change" id="button_first_name"/> 
-      <input onclick='changeButtonValue(this.id)'
-      type ="button" value="Change" id="button_last_name"/>
-      <input onclick='changeButtonValue(this.id)'
-      type ="button" value="Change" id="butten_phone_number"/>
-      <input onclick='changeButtonValue(this.id)'
-      type ="button" value="Change" id="button_email"/>       
+      <p><input onclick='changeOnClick(this.id, "cGroup_1", <?= cGroup_1 ?>)'
+      type ="button" value="Change" id="button_cGroup_1" /></p> 
+      <p><input onclick='changeOnClick(this.id, "cGroup_2", <?= cGroup_2 ?>)'
+      type ="button" value="Change" id="button_cGroup_2"/></p>
+      <p><input onclick='changeOnClick(this.id, "cGroup_3", <?= cGroup_3 ?>)'
+      type ="button" value="Change" id="butten_CGroup_3"/></p>
+      <p><input onclick='changeOnClick(this.id, "cGroup_4", <?= cGroup_4 ?>)'
+      type ="button" value="Change" id="button_cGroup_4"/></p>       
       </div>
      </div>    
    </body>
