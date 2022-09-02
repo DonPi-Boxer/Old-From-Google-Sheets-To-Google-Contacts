@@ -34,7 +34,7 @@
     // NOte that this google.script.run should run the function highest in hierarchy for adding the contact *\
 google.script.run
 .withSuccessHandler(google.script.host.close)
-.testConfirmSumbit(document.getElementById("confirm-contact"));  
+.confirmSumbit(document.getElementById("confirm-contact"));  
 }
 
   function changeInputField(idToChange, testLiteral) {
@@ -59,7 +59,8 @@ google.script.run
     var valueToPut = google.script.run(testVars)
     changeInnerHTML(idToChange, valueToPut.toString());
   } 
-    google.script.host.setHeight(500);    
+    google.script.host.setHeight(600);
+    google.script.host.setWidth(600);    
   function textToInput()  {   
 } 
   </script>
@@ -124,7 +125,3 @@ google.script.run
     </fieldset>
    </body>
 </html>
-
-
-test of de formobject goed overgenomen wordt door een ui.prompt uit te voeren in de test 
-functie waarbij de getCredentialsOfFormObject functie gebruikt wordt om ze hieruit te achterhalen neef

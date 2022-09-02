@@ -7,7 +7,7 @@
     // NOte that this google.script.run should run the function highest in hierarchy for adding the contact *\
 google.script.run
 .withSuccessHandler(google.script.host.close)
-.addContactContainer(document.getElementById("add-contact"));  
+.addContacInitialInput(document.getElementById("add-contact"));  
 }
   var submit_form=document.getElementById("submit");
   submit_form.onclick=function(e)
