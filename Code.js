@@ -154,7 +154,7 @@ function cacheFullContactCredentials(fullContactCredentials){
 
   function addContactContainer(formObject){
     ////ui.prompt ("In the add contact container function, going into the getCredentialsOfForm functions");
-    var fullContactCredentials = getCredentialsOfFormObject(formObject);
+    var fullContactCredentials = getCredentialsOfFormObject(formObject, true);
     // function runs into the getcredentials of form, but not further than there. where goes this wrong ?
     ////ui.prompt ("In de add contact container, the full contact credentials array is equal to " + fullContactCredentials);
     ////ui.prompt ("Moving withinin the add contact container function from the get credentials of form function into the appendcontactToRowPosition function");
@@ -479,7 +479,7 @@ function alterinputCGroups(){
 
 
 
-function getCredentialsOfFormObject(formObject){  
+function getCredentialsOfFormObject(formObject, cacheOrNot){  
   var fullContactCredentials = ([
                 formObject.cGroup_1,  
                 formObject.cGroup_2,
@@ -492,12 +492,16 @@ function getCredentialsOfFormObject(formObject){
                 ]);
 
   //Put the phone number in between "" to ensure that the spreadsheet keep the original layout of the input
-  fullContactCredentials[6] = "'" + fullContactCredentials[7];
+  if (fullContactCredentials[6]){
+  fullContactCredentials[6] = "'" + fullContactCredentials[6];
+  }
   
 
  // const fullContactCredentials = Object.values(formObject);
   //ui.prompt ("within the getcredentialsofforn function, the full contact credentials array is equal to " + fullContactCredentials);
+  if (cacheOrNot){
   cacheFullContactCredentials(fullContactCredentials); 
+  }
   return fullContactCredentials;
 }
 
@@ -754,4 +758,16 @@ function guiTest(){
 var testThisFunction = ui.createMenu('Testing') 
   .addItem("testing", 'test')
   .addToUi()
+}
+
+function testConfirmSumbit(formObject){ 
+  var contactCredentialsConfirm = getCredentialsOfFormObject(formObject, false); 
+  var contactCredentialsFinal = testVars(); 
+
+  for (var i =0; i<contactCredentialsFinal.length; i++) {
+    if (contactCredentialsConfirm[i]){
+      contactCredentialsFinal[i] = contactCredentialsConfirm[i];
+    }
+  }
+  ui.prompt(contactCredentialsFinal); 
 }

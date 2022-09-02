@@ -227,3 +227,19 @@ append array under previous array and create new rowgroup ONLY in this row
 </html>
 
 
+elem.innerHTML =  "<input type='text''value='' id=" + idToChange + "/></p>";\
+
+elem.innerHTML =  "<input type='text''value='' id=" + idToChange + "/></p>"; 
+
+
+
+function testConfirmSumbit(formObject){ 
+  var contactCredentialsConfirmation = getCredentialsOfFormObject(formObject);
+/*  var contactCredentialsInitial = testVars(); //Get from the original cached credentials
+  for (var i=0; i<contactCredentialsInitial.length(); i++){
+    if (contactCredentialsConfirmation[i]){
+        contactCredentialsInitial[i] = contactCredentialsConfirmation[i];
+  }  
+} */
+ui.prompt(contactCredentialsInitial);
+}

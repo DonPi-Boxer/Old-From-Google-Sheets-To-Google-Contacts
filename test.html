@@ -30,14 +30,19 @@
       elem.value = "Unchange"
     }      
   } 
+  function submitConfirmationForm() {
+    // NOte that this google.script.run should run the function highest in hierarchy for adding the contact *\
+google.script.run
+.withSuccessHandler(google.script.host.close)
+.testConfirmSumbit(document.getElementById("confirm-contact"));  
+}
 
   function changeInputField(idToChange, testLiteral) {
     const elem = document.getElementById(idToChange);
     
-    if (elem.innerHTML ==  testLiteral) {
-    elem.innerHTML =  "<input type='text''value='' id=" + idToChange + "/></p>";  
-       
-  }else
+    if (elem.innerHTML ==  testLiteral) {    
+    elem.innerHTML = "<input class='form-control form-control-sm' type='text' class='form-control' id=" + idToChange + " name='first_name'>";
+       }else
     {
       elem.innerHTML =testLiteral; 
     }
@@ -60,10 +65,10 @@
   </script>
   </head>
   <body>
-    <h2> Confirmation: Adapt possible mistakes and then submit.
-         Contact Groups with a *, are created as new when submitted 
+    <h2> Confirmation:
     </h2>
      <h3>Credentials</h3>
+     <form id="confirm-contact">
      <div class="row">
       <div class="column">
           <p><b> First name:</b></p>
@@ -113,6 +118,13 @@
       <p><input onclick='changeOnClick(this.id, "cGroup_4", <?= cGroup_4 ?>)'
       type ="button" value="Change" id="button_cGroup_4"/></p>       
       </div>
-     </div>    
+     </div>
+     <input type="Submit" value="confirm" id="submit"
+        onclick="submitConfirmationForm();">
+    </fieldset>
    </body>
 </html>
+
+
+test of de formobject goed overgenomen wordt door een ui.prompt uit te voeren in de test 
+functie waarbij de getCredentialsOfFormObject functie gebruikt wordt om ze hieruit te achterhalen neef
