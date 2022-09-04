@@ -156,14 +156,14 @@ function cacheFullContactCredentials(fullContactCredentials){
     dialogTitle = "Confirm new contact";
   
     var modalDialog = createModalDialog(dialogFormHTMLTitle);
-    modalDialog.cred_1 = fullContactCredentials[0].toString();
-    modalDialog.cred_2 = fullContactCredentials[1].toString();
-    modalDialog.cred_3 = fullContactCredentials[2].toString();
-    modalDialog.cred_4 = fullContactCredentials[3].toString();
-    modalDialog.cGroup_1 = fullContactCredentials[4].toString();
-    modalDialog.cGroup_2 = fullContactCredentials[5].toString();
-    modalDialog.cGroup_3 = fullContactCredentials[6].toString();
-    modalDialog.cGroup_4 = fullContactCredentials[7].toString();
+    modalDialog.cred_1 = fullContactCredentials[4].toString();
+    modalDialog.cred_2 = fullContactCredentials[5].toString();
+    modalDialog.cred_3 = fullContactCredentials[6].toString();
+    modalDialog.cred_4 = fullContactCredentials[7].toString();
+    modalDialog.cGroup_1 = fullContactCredentials[0].toString();
+    modalDialog.cGroup_2 = fullContactCredentials[1].toString();
+    modalDialog.cGroup_3 = fullContactCredentials[2].toString();
+    modalDialog.cGroup_4 = fullContactCredentials[3].toString();
   
     setModalDialog(modalDialog, dialogTitle);
   }
