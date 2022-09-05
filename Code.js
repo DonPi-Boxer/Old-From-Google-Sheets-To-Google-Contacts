@@ -156,14 +156,14 @@ function cacheFullContactCredentials(fullContactCredentials){
     dialogTitle = "Confirm new contact";
   
     var modalDialog = createModalDialog(dialogFormHTMLTitle);
-    modalDialog.cred_1 = fullContactCredentials[0].toString();
-    modalDialog.cred_2 = fullContactCredentials[1].toString();
-    modalDialog.cred_3 = fullContactCredentials[2].toString();
-    modalDialog.cred_4 = fullContactCredentials[3].toString();
-    modalDialog.cGroup_1 = fullContactCredentials[4].toString();
-    modalDialog.cGroup_2 = fullContactCredentials[5].toString();
-    modalDialog.cGroup_3 = fullContactCredentials[6].toString();
-    modalDialog.cGroup_4 = fullContactCredentials[7].toString();
+    modalDialog.cred_1 = fullContactCredentials[4].toString();
+    modalDialog.cred_2 = fullContactCredentials[5].toString();
+    modalDialog.cred_3 = fullContactCredentials[6].toString();
+    modalDialog.cred_4 = fullContactCredentials[7].toString();
+    modalDialog.cGroup_1 = fullContactCredentials[0].toString();
+    modalDialog.cGroup_2 = fullContactCredentials[1].toString();
+    modalDialog.cGroup_3 = fullContactCredentials[2].toString();
+    modalDialog.cGroup_4 = fullContactCredentials[3].toString();
   
     setModalDialog(modalDialog, dialogTitle);
   }
@@ -181,14 +181,14 @@ function cacheFullContactCredentials(fullContactCredentials){
 
   }
   
-  function confirmSumbit(formObject, fullContactCredentials){ 
+  function confirmSumbit(formObject){ 
     var contactCredentialsConfirm = getCredentialsOfFormObject(formObject, false); 
-    var getCachedFullContactCredentials = "fullContactCredentials";
-    var contactCredentialsFinal = getCachedContactCredentialsInArray(getCachedFullContactCredentials);
+    var initialCachedCredentials = "fullContactCredentials";
+    var initialCredentials = getCachedContactCredentialsInArray(initialCachedCredentials);
     
-    for (var i =0; i<contactCredentialsFinal.length; i++) {
+    for (var i =0; i<initialCredentials.length; i++) {
       if (contactCredentialsConfirm[i]){
-        contactCredentialsFinal[i] = contactCredentialsConfirm[i];
+        initialCredentials[i] = contactCredentialsConfirm[i];
       }
     }
     // //ui.prompt(contactCredentialsFinal); 
@@ -196,7 +196,7 @@ function cacheFullContactCredentials(fullContactCredentials){
     // function runs into the getcredentials of form, but not further than there. where goes this wrong ?
     //////ui.prompt ("In de add contact container, the full contact credentials array is equal to " + fullContactCredentials);
     //////ui.prompt ("Moving withinin the add contact container function from the get credentials of form function into the appendcontactToRowPosition function");
-    evaluateInputContactCreds(contactCredentialsFinal);
+    evaluateInputContactCreds(initialCredentials);
     //////ui.prompt ("All done with the addContactContainer function (and thus with everything_)");
   }
 
@@ -301,6 +301,7 @@ function findRowPositionOfNewContact(contactGroupNamesArray) {
   }
 */
 
+  // ui.prompt("Inside find for position of new contact function");
 
   
   var collumnsPositionsToSearchArray = [1,2,3,4];
@@ -396,7 +397,7 @@ function evaluateInputContactCreds(fullContactCredentials) {
   ////ui.prompt("fullcontact credentials equals " + fullContactCredentials);
   //Get only the contact group dimensional names from the full contact credentials.
   var contactGroupDimensionNamesArray = fullContactCredentials.slice(0,4);
-  //ui.prompt ("The contact group dimension names array is " + contactGroupDimensionNamesArray);
+  ui.prompt ("In the evaluation function, the contact group dimension names array is " + contactGroupDimensionNamesArray);
  
   // SpreadsheetApp.getActive().toast("Full contact credentials is " + fullContactCredentials);
   //Note: probably have to expand this variable in order to take non full contact group dimensions into account
@@ -404,6 +405,7 @@ function evaluateInputContactCreds(fullContactCredentials) {
   //////ui.prompt ("Moving from appendcontacttoRowPosition to findRowPositionOfNewContact");
   var rowPositionOfLastContactInSameDimension = findRowPositionOfNewContact(contactGroupDimensionNamesArray);
   //////ui.prompt ("Moved back rom find the row position of last contact in same dimenions to the append contact function, row position of the last similair contact is " + rowPositionOfLastContactInSameDimension);
+  
   
   
   // TODO: search for the contact in alphabetical order ict the names of the ones in it's group
@@ -450,22 +452,32 @@ function evaluateInputContactCreds(fullContactCredentials) {
 
 function findSortedRowPosition(firstRowToSearch, lastRowToSearch, collumnToSearch, stringToSearch) {
   
+  ui.prompt("Inside find row positoin of sorted contact functions, firstrowtosearch: " + firstRowToSearch + ", lastrowtosearch: " + lastRowToSearch);
   //How big is the range of rows in which we have to search
-  const numRowsToSearch = lastRowToSearch - firstRowToSearch;
+  var numRowsToSearch = parseInt(lastRowToSearch) - parseInt(firstRowToSearch);
+  ui.prompt("numrowstosearch equals " + numRowsToSearch);
+  ui.prompt("collumn to search type " + typeof(collumnToSearch));
   // getRange return an array of stringarrays
-  const stringsArrayArrays = ss.getRange(firstRowToSearch, numRowsToSearch,collumnToSearch,1);
+  var stringsArrayRange = sheet.getRange(parseInt(firstRowToSearch),parseInt(collumnToSearch),parseInt(numRowsToSearch));
+  ui.prompt("hoi");
+  ui.prompt("String array range equals " + stringsArrayRange);
+  const stringsArrayArrays = stringsArrayRange.getValues();
+  ui.prompt("string arrays of arrays equlas " + stringsArrayArrays);
   
   
   // Now we return one array of strings
   const stringArray = String(stringsArrayArrays).split(",");
+  ui.prompt("stringaraay equals (before push)" + stringArray);
   //append the string of which we want to know its alphabetical postion in the range to the stringarray
   stringArray.push(stringToSearch.toString());
+  ui.prompt("stringArray after push equals " + stringArray);
   //Sort alphabetically
   stringArray.sort();
+  ui.prompt("sorted string array equals" + stringArray);
   //Find the index of the string we want to know the alphabetical position of
 
-  var alphabeticalPositionOfNewString = stringArray.indexOf(stringToSearch.toString());
-
+  var alphabeticalPositionOfNewString = stringArray.indexOf(stringToSearch.toString()) + firstRowToSearch;
+  ui.prompt("at the end of the find sorted row position function. Position found equals " + alphabeticalPositionOfNewString);
   return alphabeticalPositionOfNewString;
 
   //find index of new string
@@ -523,27 +535,27 @@ function createNewContactGroups(fullContactCredentials, rowPositionOfNewContact)
   var rowGroupPositionsToAdd = [];
   for (let i = 0; i< parseInt(cGroupDimensionsNotFound.length - 1); i++) {
   
-    initialPositionoNewContactAndContactGroup = initialPositionoNewContactAndContactGroup + 1; 
+    rowPositionOfNewContact = rowPositionOfNewContact + 1; 
    
     cGroupDimensionsFound.push(cGroupDimensionsNotFound[i]);
 
     //Add the contact Groups
     //Note to change the name of this function to something like addObjectToRow
-    addContactToRow(initialPositionoNewContactAndContactGroup, cGroupDimensionsFound);
+    addContactToRow(rowPositionOfNewContact, cGroupDimensionsFound);
     
     // if i = 0 --> sort this collumn
 
     //Create new contact Group at this position as well
     ////ui.prompt("added new contact / object and its contact groups to roww number" + initialPositionoNewContactAndContactGroup);
 
-    rowGroupPositionsToAdd.push(initialPositionoNewContactAndContactGroup + 1); 
+    rowGroupPositionsToAdd.push(rowPositionOfNewContact + 1); 
   } 
   
   // //ui.prompt("now adding the full contact credentiasl themselves ");
   //Now also add the fullContactCredentials
-  initialPositionoNewContactAndContactGroup = initialPositionoNewContactAndContactGroup + 1;
+  rowPositionOfNewContact = rowPositionOfNewContact + 1;
   // //ui.prompt("initials ")
-  addContactToRow(initialPositionoNewContactAndContactGroup, fullContactCredentials);
+  addContactToRow(rowPositionOfNewContact, fullContactCredentials);
 
   // //ui.prompt("now creating the rowgroups");
   // //ui.prompt("rowpositions to add equals " + rowGroupPositionsToAdd);
