@@ -377,8 +377,11 @@ function addContactAndNewContactGroup(fullContactCredentials){
 
 //If atleast one of the contact groups does exist already
 //Insert a new row after the last found contact already existing inside all 4 corresponding contact group dimensions
-function addContactToRow(rowPositionOfNewContact, fullContactCredentials){
-  sheet.insertRows(rowPositionOfNewContact);
+function addContactToRow(rowPositionAboveNewContact, fullContactCredentials){
+  ui.prompt("inserting row under position " + rowPositionAboveNewContact);
+  sheet.insertRowAfter(rowPositionAboveNewContact);
+  const rowPositionOfNewContact = rowPositionAboveNewContact + 1;
+  ui.prompt("Row position to add new contact equals " + rowPositionOfNewContact);
   SpreadsheetApp.getActive().toast("appended succesfully")
   //Length of the entire contact Credentials array in order to succesfully grab a range to set the values of the credentials in
   const fullContactCredentialsLength = fullContactCredentials.length;
@@ -411,7 +414,8 @@ function evaluateInputContactCreds(fullContactCredentials) {
   // TODO: search for the contact in alphabetical order ict the names of the ones in it's group
   //If the first entry True, we have found all four input dimension and we can simply add the new contact to its found row
   if (rowPositionOfLastContactInSameDimension[0] == true) {
-  var rowPositionOfNewContact = rowPositionOfLastContactInSameDimension[1] + 1;
+  //TODO: Just remove a +1 here
+  var rowPositionOfNewContact = rowPositionOfLastContactInSameDimension[1];
   ////ui.prompt ("So new contact comes in row " + rowPositionOfNewContact + " we append in this row the credentials " + fullContactCredentials);
 
   // USE SORT FUNCTION TO FIND THE ALPHABWTICAL ORDER OF CONTACT NAMES
@@ -452,47 +456,66 @@ function evaluateInputContactCreds(fullContactCredentials) {
 
 function findSortedRowPosition(firstRowToSearch, lastRowToSearch, collumnToSearch, stringToSearch) {
   
-  ui.prompt("Inside find row positoin of sorted contact functions, firstrowtosearch: " + firstRowToSearch + ", lastrowtosearch: " + lastRowToSearch);
+  // ui.prompt("Inside find row positoin of sorted contact functions, firstrowtosearch: " + firstRowToSearch + ", lastrowtosearch: " + lastRowToSearch);
   //How big is the range of rows in which we have to search
   var numRowsToSearch = parseInt(lastRowToSearch) - parseInt(firstRowToSearch);
-  ui.prompt("numrowstosearch equals " + numRowsToSearch);
-  ui.prompt("collumn to search type " + typeof(collumnToSearch));
+
+  if (numRowsToSearch == 0){
+    // ui.prompt("Numrows to search now equal to " + numRowsToSearch);
+    numRowsToSearch = parseInt(1);
+  }
+
+  // // // ui.prompt("numrowstosearch equals " + numRowsToSearch);
+  // ui.prompt("collumn to search type " + typeof(collumnToSearch));
   // getRange return an array of stringarrays
   var stringsArrayRange = sheet.getRange(parseInt(firstRowToSearch),parseInt(collumnToSearch),parseInt(numRowsToSearch));
-  ui.prompt("hoi");
-  ui.prompt("String array range equals " + stringsArrayRange);
+  // ui.prompt("hoi");
+  // // // ui.prompt("String array range equals " + stringsArrayRange);
   const stringsArrayArrays = stringsArrayRange.getValues();
-  ui.prompt("string arrays of arrays equlas " + stringsArrayArrays);
+  // ui.prompt("string arrays of arrays equlas " + stringsArrayArrays);
   
   
   // Now we return one array of strings
   const stringArray = String(stringsArrayArrays).split(",");
-  ui.prompt("stringaraay equals (before push)" + stringArray);
+  // ui.prompt("stringaraay equals (before push)" + stringArray);
   //append the string of which we want to know its alphabetical postion in the range to the stringarray
   stringArray.push(stringToSearch.toString());
-  ui.prompt("stringArray after push equals " + stringArray);
+  // ui.prompt("stringArray after push equals " + stringArray);
   //Sort alphabetically
   stringArray.sort();
-  ui.prompt("sorted string array equals" + stringArray);
+  // ui.prompt("sorted string array equals" + stringArray);
   //Find the index of the string we want to know the alphabetical position of
 
   var alphabeticalPositionOfNewString = stringArray.indexOf(stringToSearch.toString()) + firstRowToSearch;
-  ui.prompt("at the end of the find sorted row position function. Position found equals " + alphabeticalPositionOfNewString);
+  // ui.prompt("at the end of the find sorted row position function. Position found equals " + alphabeticalPositionOfNewString);
   return alphabeticalPositionOfNewString;
 
   //find index of new string
 
 }  
 
-function createNewRowGroup(rowPositionOfNewRowGroup, numberOfRowsToGroup) {
-  SpreadsheetApp.getActive().toast("inside crearte row position function");
+function groupRowRange(rowPositionToGroup, numRowsToGroup, depthToShift) {
+  SpreadsheetApp.getActive().toast("inside crearte row position function, shiftdepth: " + depthToShift);
   // //ui.prompt("inside create new row group function");
-  var rangeOfGroup = sheet.getRange(rowPositionOfNewRowGroup,1,numberOfRowsToGroup,1);
-  rangeOfGroup.activate().shiftRowGroupDepth(1);
+  const rangeToGroup = sheet.getRange(rowPositionToGroup,1,numRowsToGroup,1);
+  rangeToGroup.activate().shiftRowGroupDepth(depthToShift);
+}
+
+function unGroupRowRange(rowPositionToUnGroup, numRowsToUnGroup, depthToUnShift) { 
+  var shiftDepth = parseInt(-1*depthToUnShift);
+  ui.prompt("inside ungroup row range function, shiftdepth: " + shiftDepth);
+  // //ui.prompt("inside create new row group function");
+  var rangeToUnGroup = sheet.getRange(rowPositionToUnGroup,1,numRowsToUnGroup,1);
+  ui.prompt("range to ungroup equals " + rangeToUnGroup);
+  rangeToUnGroup.activate().shiftRowGroupDepth(shiftDepth);
+  ui.prompt("finished ungroup function");
+
 }
 
 
 function createNewContactGroups(fullContactCredentials, rowPositionOfNewContact){
+
+  
  //ui.prompt("inside create new contact groups function");
 
   // get the relevant variables from the cache   
@@ -510,6 +533,7 @@ function createNewContactGroups(fullContactCredentials, rowPositionOfNewContact)
 // //ui.prompt("cached contact group dimension names equals" + contactGroupDimensionNames); 
   var contactGroupDimensionNames = fullContactCredentials.slice(0,4);   
   var cGroupDimensionPoisitionNotFound = parseInt(userCache.get('iterationNotFound'));
+  // ui.prompt("Inside create new contact groups function, cGroups dimensions not found equals " + cGroupDimensionPoisitionNotFound);
 //  //ui.prompt("cGroupDimensionPoisitionNotFound equals " + cGroupDimensionPoisitionNotFound);
 //  //ui.prompt(" type of dimesnion not foud is " + typeof(cGroupDimensionPoisitionNotFound));
 
@@ -526,55 +550,90 @@ function createNewContactGroups(fullContactCredentials, rowPositionOfNewContact)
   // //ui.prompt("Type of group names equals " + whatIsGroupNames);
   var cGroupDimensionsFound = contactGroupDimensionNames.slice(0,cGroupDimensionPoisitionNotFound);
   var cGroupDimensionsNotFound = contactGroupDimensionNames.slice(cGroupDimensionPoisitionNotFound, cGroupDimensionsLength);
+  // ui.prompt("cgroup dimensions found: " + cGroupDimensionsFound + "c groups dimensions not found: " + cGroupDimensionsNotFound);
 //  //ui.prompt("cgroup dimensions found equals " + cGroupDimensionsFound + " cgroup dimension not found equals " + cGroupDimensionsNotFound);
  
   //First we add the new contact to the first Row position of which we know he fits wihtin the contact Group Dimensions   
   //Frst add the not yet found contact Groups as new Contact Groups to the list
 
   // Array to store in which rows (+1) we have added new contact groups in order to later create rowgroups in these rows
+  var cGroupsToCreateLength = cGroupDimensionsNotFound.length-1;
   var rowGroupPositionsToAdd = [];
-  for (let i = 0; i< parseInt(cGroupDimensionsNotFound.length - 1); i++) {
+  for (var i = 0; i< parseInt(cGroupsToCreateLength); i++) {
   
-    rowPositionOfNewContact = rowPositionOfNewContact + 1; 
+    ui.prompt("Inside loop");
    
     cGroupDimensionsFound.push(cGroupDimensionsNotFound[i]);
 
     //Add the contact Groups
     //Note to change the name of this function to something like addObjectToRow
-    addContactToRow(rowPositionOfNewContact, cGroupDimensionsFound);
+
     
+   //We used the fact that adding a new row underneath an existing row group, makes the new row part of the existing row groups above this new row.
+   //Because the first not yet existing cgroup dimension wants to create it's own rowgroup dimension, we have to decrease this row's rowgroup by one.
+    
+
+   // In the first iteration of the loop, we add a new row under the position of the CGroups, which copies
+   // ALL the existing row groups above. To remove (unshift) the groups with which we do not want to group (aka the non matching ones)
+   // We unshift this row with the amount of levels of unique cGroups that it has.
+   //Note that thus the cGroups that do Match with the new contact, stay intact
+   if (i == 0){
+    
+    
+    addContactToRow(rowPositionOfNewContact, cGroupDimensionsFound);
+    ui.prompt("Ungrouping the first created row group, which we do not want, at row position " + parseInt(rowPositionOfNewContact + 1));
+    unGroupRowRange(rowPositionOfNewContact +1, 1, cGroupsToCreateLength);    
+   }
+    
+   //For the rest of the iterations, we add the new CGroups underneath the, already unique, newly created CGroup.
+   //To create new row groups, we therefore add a grouped range with shiftdepth one after we've added the new contact
+   else {
+
+    ui.prompt("addind contact groups that was not yet added: " +  cGroupDimensionsNotFound);
+    addContactToRow(rowPositionOfNewContact, cGroupDimensionsFound);
+    ui.prompt("Grouping the first created row group, which we do want, at rowposition " + (rowPositionOfNewContact + 1));
+    groupRowRange(rowPositionOfNewContact +1, 1, 1);
+   }
     // if i = 0 --> sort this collumn
 
     //Create new contact Group at this position as well
     ////ui.prompt("added new contact / object and its contact groups to roww number" + initialPositionoNewContactAndContactGroup);
-
-    rowGroupPositionsToAdd.push(rowPositionOfNewContact + 1); 
+    rowGroupPositionsToAdd.push(rowPositionOfNewContact); 
+    rowPositionOfNewContact = rowPositionOfNewContact + 1; 
   } 
   
   // //ui.prompt("now adding the full contact credentiasl themselves ");
   //Now also add the fullContactCredentials
-  rowPositionOfNewContact = rowPositionOfNewContact + 1;
+
+  //TODO: removed a plus 1 here
+  // rowPositionOfNewContact = rowPositionOfNewContact;
   // //ui.prompt("initials ")
+  
+  // TODO: would be nicer to place this statement in the container function 
+
+  //And now, we need to add the full contact credentials (which also included the 4th cGroup dimension). 
+  //To make the 4th cGroup dimension fall under it's abovestanding matching ones, we also need to group this new contact with depth one.
   addContactToRow(rowPositionOfNewContact, fullContactCredentials);
+  groupRowRange(rowPositionOfNewContact +1, 1, 1);  
 
   // //ui.prompt("now creating the rowgroups");
   // //ui.prompt("rowpositions to add equals " + rowGroupPositionsToAdd);
-
-  var numberOfRowsToGroup = parseInt(rowGroupPositionsToAdd.length + 1);
+  /*
+  var numberOfRowsToGroup = rowGroupPositionsToAdd.length;
 for (let i =0; i<numberOfRowsToGroup; i++){ 
   numberOfRowsToGroup = numberOfRowsToGroup - i;
- ui.prompt("Number of rows group equals " + numberOfRowsToGroup);
- ui.prompt("Row positions to groups equals" + rowGroupPositionsToAdd[i]);  
+  ui.prompt("Number of rows group equals " + numberOfRowsToGroup);
+  ui.prompt("Row positions to groups equals" + rowGroupPositionsToAdd[i]);  
   
   if (numberOfRowsToGroup == 1){
 
-    ui.prompt("Inside if statement");
-    createNewRowGroup(parseInt(rowGroupPositionsToAdd[i]), 1);
+    // ui.prompt("Inside if statement");
+    groupRowRange(parseInt(rowGroupPositionsToAdd[i]), 1, 1 );
   }
   else {
-  createNewRowGroup(parseInt(rowGroupPositionsToAdd[i]) , numberOfRowsToGroup - 1);  
+  groupRowRange(parseInt(rowGroupPositionsToAdd[i]) , numberOfRowsToGroup, 1);  
   }
-}  
+}   */
   }
 
   function newContactAndContactGroupContainer(){
