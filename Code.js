@@ -56,14 +56,15 @@ var userCache = CacheService.getUserCache();
 
 
 // Underneath is all about importing the contact to google contacts
-function importContacts() {ContactsApp.createContac
+/*
+function importContacts() {
   for (var i = 0; i < data.length; i++) {
     var row = data[i];
     var firstName = row[firstNameIndex];
     var lastName = row[lastNameIndex];
     var emailAdd = row[emailIndex];
   //  var teamAdd = row[contactgroupIndex];
-    var positionAdd = row[positionIndex];
+    var positionAdd = row[cGroup4Index];
     var mobileAdd = row[mobileIndex];
     var statusRow = row[statusIndex];
 
@@ -90,7 +91,120 @@ function importContacts() {ContactsApp.createContac
     }
   }
 }
+*/
+// Underneath is all about importing the contact to google contacts
+function importContacts() {
+//  ui.prompt("inside import contacts");
+  var dummy = ContactsApp.getContact("nigeljansen1996@live.nl");
+  //Get all the contact data, starting at row 4
+ // ui.prompt("dummy is " + dummy);
+  for (var i=4; i<= sheet.getLastRow(); i++)  {
+   // ui.prompt("inside for loop");
+    var rowmatrix= sheet.getRange(i, 1, 1, sheet.getLastColumn()).getValues();
+    var row = rowmatrix[0];
+   // ui.prompt("row is " + row);
+   var lastName = row[lastNameIndex];
+  // ui.prompt("row is " + row + "lastname is " + lastName + "row[0][o] is " + row[0][0] + row[0][1]);
 
+    //Only if a last name exists, we continue to add the contact:
+
+    
+    if (lastName ){
+      ui.prompt("last name exists, row equals" + row);
+      var emailAdd = row[mobileIndex];
+      var firstName = row[firstNameIndex];  
+      var mobileAdd = row[emailIndex];
+      var companyTypeAdd = row[cGroup1Index];
+      var teamAdd = row[cGroup3Index];
+      var companyAdd = row[cGroup2Index];
+      var positionAdd = row[cGroup4Index];
+      ui.prompt("first name is " + firstName + " last name is " + lastName + " email is " + emailAdd);
+      var newContact = ContactsApp.createContact(firstName, lastName, emailAdd);
+      ui.prompt("new contact is " + newContact);
+      if (mobileAdd != "" ) {
+        newContact.addPhone(ContactsApp.Field.MOBILE_PHONE, mobileAdd);
+      }
+      if (companyAdd != ""){
+      
+        if (positionAdd !="") {
+          ui.prompt("adding company, with position");
+          newContact.addCompany(companyAdd, positionAdd);
+        }
+          else if (companyAdd != "" && positionAdd ==""){
+            ui.prompt("adding company without position");
+            newContact.addCompany(companyAdd, "");
+            }
+
+          }
+
+        //Creating teamLabels underneath
+        // IF BOTH TEAM AND COMPANY GIVEN __> create label team and company
+        if (teamAdd !=""){
+          let contactGroupName = companyAdd + " - " + teamAdd; 
+          let contactGroup = findOrCreateContactGroup(contactGroupName);
+          contactGroup.addContact(newContact);
+          // ALSO ADD A FIELD WITH TEAM ?
+        }
+        //Create company type label
+        if (companyTypeAdd != ""){
+        let contactGroup = findOrCreateContactGroup(companyTypeAdd);
+        contactGroup.addContact(newContact);      
+          //create companytype and team label
+          if (teamAdd != ""){
+            let contactGroupName = companyTypeAdd + "-" + teamAdd;
+            contactGroup = findOrCreateContactGroup(contactGroupName);
+            contactGroup.addContact(newContact);
+            //create company type, team and position label
+            if (positionAdd != ""){
+              contactGroupName = contactGroupName + "-" + positionAdd;
+              contactGroup = findOrCreateContactGroup(contactGroupName);
+              contactGroup.addContact(newContact);
+          }
+        }
+      }
+    }
+  }
+}
+
+
+function findOrCreateContactGroup(contactGroupName){
+  let contactGroup = getContactGroup(contactGroupName);
+  if(contactGroup[0] == true){      
+      ui.prompt("contact group exists, it equals " + contactGroup[1] +" now adding the contact to this contact group");
+      return contactGroup[1];      
+    }  
+  else if (contactGroup[0] == false){
+      createContactGroup(contactGroupName);
+      contactGroup = getContactGroup(contactGroupName);
+      let newContactGroup = contactGroup[1];
+      return newContactGroup
+  } 
+  ui.prompt("finished the find or create contact group funciton");
+}
+
+function getContactGroup(contactGroupName){
+  ui.prompt("inside get contactGroup function");
+  let contactGroup = ContactsApp.getContactGroup(contactGroupName);
+    if (contactGroup){
+      ui.prompt("Contact groups exists: " + contactGroup);
+      return [true, contactGroup]
+    }
+    else{
+      ui.prompt("contact group does not exist");
+      return [false]
+    }
+}
+
+function createContactGroup(contactGroupName) {
+  ui.prompt("inside create NEW contact Group function");
+  var contactGroupString = contactGroupName.toString();
+  var newContactGroup = People.ContactGroups.create({
+      contactGroup: {
+        name: contactGroupString
+      }
+    });
+    return newContactGroup
+}
 
 //functions to cache and decache variables which might have to be stored in the local memory
 function cacheNewContactGroupVariables(contactGroupDimensionNamesArray, iterationNotFound,lastFoundFirstRowExtreme, lastFoundLastRowExtreme){
