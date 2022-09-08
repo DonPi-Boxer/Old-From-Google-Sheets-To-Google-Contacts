@@ -37,17 +37,18 @@ var userCache = CacheService.getUserCache();
 //get Contact by email adress (created function to be able to use .map function in the container functions)
 function getContactsByMailAddress(mailAdress){
   let contacts = ContactsApp.getContactsByEmailAddress(mailAdress);
-  if (contacts){
+  if (contacts != "" && contacts){
     return contacts;
   }
   else{
+    ui.prompt("contacts not found, it is " + contacts + " type is " + typeof(contacts));
     return undefined;
   }
 }
 
 function getContactMailAdressOfMailObject(mailObject){
   let mailAdresses = mailObject.getAddress();  
-  if (mailAdresses){
+  if (mailAdresses != "" && mailAdresses){
     return mailAdresses;
   }
   else {
@@ -59,7 +60,7 @@ function getContactMails(contact){
   let contactMailObject = contact.getEmails();
   let contactMails = contactMailObject.map(getContactMailAdressOfMailObject);
 
-  if (contactMails){
+  if (contactMails != "" && contactMails){
     return contactMails;
   }
   else{
@@ -69,9 +70,8 @@ function getContactMails(contact){
 
 function doesContactMailExist(mailAdress){ 
   contacts = getContactsByMailAddress(mailAdress);
-  let contactMails = contacts.map(getContactMails);   
-  
-  if (contacts){
+  if (contacts != "" && contacts){
+    let contactMails = contacts.map(getContactMails); 
     return contactMails;
   }
   else {
@@ -93,17 +93,20 @@ function importContacts() {
 
     var emailAdd = row[mobileIndex];
     if (emailAdd){
-      ui.alert("email add is not empty, it equals " + emailAdd);
-      var doesContactAlreadyExists = doesContactMailExist(emailAdd); 
+      var doesContactAlreadyExist = doesContactMailExist(emailAdd); 
       
-      if (doesContactAlreadyExists){
-        ui.alert("contact email adress already exists, namely " + doesContactAlreadyExists + " breaking function");
-        var contact = getContactsByMailAddress(mailAdd);
+      if (doesContactAlreadyExist){
+        var contact = getContactsByMailAddress(emailAdd);
+
+        //todo als naam al van contact is zelfde --> niet toevoegen
+        // Also, dubble check if contact does not exist in contact groups yet
+
         // Check if the phone number already exists for this contact, if not, add. Do the same for the
         // CGroup dimensions. For now, just break the function to fix the rest.
-        return;
+        continue;
     }
-      else {
+      else if (! doesContactAlreadyExist) {
+      //ui.prompt("email adress does not exist yet, adding now ");
       newContactCount = newContactCount + 1;
        
       var lastName = row[lastNameIndex];
@@ -140,17 +143,20 @@ function importContacts() {
         //Create company type label
         if (companyTypeAdd != ""){
         let contactGroup = findOrCreateContactGroup(companyTypeAdd);
+        ui.alert("adding to contact group of only company type: " + companyTypeAdd);
         contactGroup.addContact(newContact);      
           //create companytype and team label
           if (teamAdd != ""){
-            let contactGroupName = companyTypeAdd + "-" + teamAdd;
+            var contactGroupName = createMergedContactGroupName([companyTypeAdd, teamAdd]);
             contactGroup = findOrCreateContactGroup(contactGroupName);
+            ui.alert("adding to contact group of company type and team: " + contactGroupName);
             contactGroup.addContact(newContact);
             newContactGroupCount = newContactGroupCount + 1;
             //create company type, team and position label
             if (positionAdd != ""){
-              contactGroupName = contactGroupName + "-" + positionAdd;
+              contactGroupName = createMergedContactGroupName([companyTypeAdd, teamAdd, positionAdd]);
               contactGroup = findOrCreateContactGroup(contactGroupName);
+              ui.alert("adding to contact group of type, team and role: " + contactGroupName);
               contactGroup.addContact(newContact);
               newContactGroupCount = newContactGroupCount + 1;
             }
@@ -162,6 +168,17 @@ function importContacts() {
   ui.alert("Added " + newContactCount + " new contacts and " + newContactGroupCount + " new contact groups");
 }
 
+function createMergedContactGroupName(contactGroupsToAddArray){
+  ui.prompt("contact groups to add awway: " + contactGroupsToAddArray);
+  var mergedContactGroupName = contactGroupsToAddArray[0];
+  ui.alert("entering loop");
+  for (let i = 1; i < contactGroupsToAddArray.length; i++){
+    ui.alert("inside loop, merged name is " + mergedContactGroupName + " we add " + contactGroupsToAddArray[i]);
+    mergedContactGroupName = mergedContactGroupName + " - " + contactGroupsToAddArray[i];  
+  }
+  ui.prompt("merged contact group names equals " + mergedContactGroupName);
+  return mergedContactGroupName;
+}
 
 function findOrCreateContactGroup(contactGroupName){
   let contactGroup = getContactGroup(contactGroupName);
@@ -238,18 +255,9 @@ function cacheFullContactCredentials(fullContactCredentials){
     setModalDialog(modalDialog, dialogTitle);
   }
   
-  function guiTest(){
-  var testThisFunction = ui.createMenu('Testing') 
-    .addItem("testing", 'test')
-    .addToUi()
-  }
-
-  function testVars(){
 
 
-
-
-  }
+  
   
   function confirmSumbit(formObject){ 
     var contactCredentialsConfirm = getCredentialsOfFormObject(formObject, false); 
@@ -822,14 +830,7 @@ function gUIimportcontacts() {
 
 //creeer totaal menu en zet de submenu's er in
 function setAllGUIs() {
-  //Submenu 2: Alter contact group. That is, alter name, function etc etc
-  //Submenu 3: Delete an existing contact group
-  // GuiAlterContacts()
-  // guiAlterContacts()
-  //  guiAlterContactGroups()
-   
    guiDialog()
-   guiTest()
    gUIimportcontacts()
 }
 
@@ -856,15 +857,4 @@ function onOpen(e) {
 // Try to use this function as base for the getting of the contact credentials
 function getContactInputForm(){
   var contactInputForm = createSideBar("Index-add-contact.html", "Contact Details");
-}
-
-function testVars(){
-  var test1 = "Naam1";
-  var test2 = "Naam2";
-  var test3 = "Naam3";
-  var test4 = "Naam4";
-  var testArray = ["1", "2", "3", "4", "5", "6", "7", "8"];
-
-
-  return testArray; 
 }
