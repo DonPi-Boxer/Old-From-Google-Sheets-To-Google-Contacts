@@ -134,6 +134,10 @@ function importContacts() {
         //Creating teamLabels underneath
         // IF BOTH TEAM AND COMPANY GIVEN __> create label team and company
         if (teamAdd !=""){
+          
+          createAndSetCustomlabel(newContact, "Department", teamAdd);
+
+
           let contactGroupName = companyAdd + " - " + teamAdd; 
           let contactGroup = findOrCreateContactGroup(contactGroupName);
           contactGroup.addContact(newContact);
@@ -142,6 +146,9 @@ function importContacts() {
         }
         //Create company type label
         if (companyTypeAdd != ""){
+
+        createAndSetCustomlabel(newContact, "Company Type", companyTypeAdd);
+
         let contactGroup = findOrCreateContactGroup(companyTypeAdd);
         ui.alert("adding to contact group of only company type: " + companyTypeAdd);
         contactGroup.addContact(newContact);      
@@ -212,6 +219,57 @@ function createContactGroup(contactGroupName) {
     });
     return newContactGroup
 }
+
+function createAndSetCustomlabel(contact, labelName, labelValue) {
+  
+  // Find if custom label already exists, if not just add, otherwise just change.
+  contact.addCustomField(labelValue.toString(), labelName.toString()); 
+  ui.alert("setted custom label");
+}
+
+
+function getCompanyByName(contact, companyName){
+  let companies = contact.getCompanies();  
+  let companyIndex = getCompanyIndexByName(companies, companyName);
+  ui.prompt("companie index equals" + companyIndex);
+  let companyFound = companies[companyIndex];
+  ui.alert("company found equals " + companyFound);
+
+  if (companyFound != ""  &&  companyFound){
+  ui.alert("company found")
+  return companyFound; }
+
+  else {
+    return undefined;
+  }
+}
+
+function getCompanyIndexByName(companies, companyName){
+  for (let i=0; i<companies.length; i++) {
+    var companyNames = companies[i].getCompanyName().toString();
+  }
+  let companyIndex = companyNames.indexOf(companyName.toString());
+  ui.alert("companyIndex equals " + companyIndex);
+  return companyIndex
+}
+
+/* function createOrganizationDepartment(contact, organization, department, title){
+  let organzationString = organization.toString();
+  let departmentString = department.toString();
+  let titleString = title.toString();
+  let bodyRequest = {
+    organization: [{
+    "department": departmentString
+    }]
+  };
+
+  ui.alert("Organization is " + bodyRequest);
+ 
+  
+  People.People.updateContact(bodyRequest, contact, {updatePersonFields: "organization"}); 
+
+}
+*/
 
 //functions to cache and decache variables which might have to be stored in the local memory
 function cacheNewContactGroupVariables(contactGroupDimensionNamesArray, iterationNotFound,lastFoundFirstRowExtreme, lastFoundLastRowExtreme){
