@@ -1,8 +1,8 @@
 // Link to google Spreadsheet:
 // https://docs.google.com/spreadsheets/d/1OmorzZyeV6XJW5UrYhfeu6KkyeicIK3xZfvtvJj71SY/edit#gid=0
 
-//Declare all constants
 
+//Declare all constants
 var cGroup1Index = 0;
 var cGroup2Index = 1;
 var cGroup3Index = 2;
@@ -17,7 +17,6 @@ var emailIndex = 6;
 var mobileIndex = 7;
 var statusIndex = 8;
 var headerRows = 2;
-
 var ui = SpreadsheetApp.getUi();
 
 // Sheet constants
@@ -280,7 +279,7 @@ function cacheNewContactGroupVariables(contactGroupDimensionNamesArray, iteratio
     'lastFoundLastRowExtreme' : lastFoundLastRowExtreme.toString()};    
   
     userCache.putAll(valuesToCache);    
-
+}
 
 function cacheFullContactCredentials(fullContactCredentials){
   userCache.put("fullContactCredentials", fullContactCredentials.toString());
@@ -296,10 +295,11 @@ function cacheFullContactCredentials(fullContactCredentials){
 
   function confirmSubmitDialog(fullContactCredentials){
 
-
+    
     dialogFormHTMLTitle = 'confirm-submit.html';
     dialogTitle = "Confirm new contact";
   
+
     var modalDialog = createModalDialog(dialogFormHTMLTitle);
     modalDialog.cred_1 = fullContactCredentials[5].toString();
     modalDialog.cred_2 = fullContactCredentials[4].toString();
@@ -317,7 +317,8 @@ function cacheFullContactCredentials(fullContactCredentials){
 
   
   
-  function confirmSumbit(formObject){ 
+  function confirmSumbit(formObject){
+  //  ui.prompt("Inside confirm contact"); 
     var contactCredentialsConfirm = getCredentialsOfFormObject(formObject, false); 
     var initialCachedCredentials = "fullContactCredentials";
     var initialCredentials = getCachedContactCredentialsInArray(initialCachedCredentials);
@@ -327,6 +328,7 @@ function cacheFullContactCredentials(fullContactCredentials){
         initialCredentials[i] = contactCredentialsConfirm[i];
       }
     }
+   // ui.prompt("Leaving confirm contact, enetering evaluate input contact creds with " + initialCredentials);
 
     // function runs into the getcredentials of form, but not further than there. where goes this wrong ?
     evaluateInputContactCreds(initialCredentials);
@@ -402,6 +404,8 @@ function  findContactGroupRowPositionExtremes(contactGroupHeader, firstRowPositi
     }
 
   }
+  
+  function findRowPositionOfNewContact(contactGroupNamesArray){
 
 
   
@@ -503,7 +507,7 @@ function addContactToRowAbove(rowPositionUnderNewContact, fullContactCredentials
 //Parse all functions and let the magic happen niffo
 //Note that this function gets call from the getCredentialsOfForm function
 function evaluateInputContactCreds(fullContactCredentials) {
-
+  ui.prompt("Inside evaluate input contact creds with " + fullContactCredentials + " now entering find row position of new contact ");
   //Get only the contact group dimensional names from the full contact credentials.
   var contactGroupDimensionNamesArray = fullContactCredentials.slice(0,4);
  

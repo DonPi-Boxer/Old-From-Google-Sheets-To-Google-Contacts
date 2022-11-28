@@ -1,12 +1,3 @@
 **/node_modules/*
-*.txt
-*.json
-import.js
-.clasp.json
-.clasprsc.json
-.creds.json
-.residue_for_later_use.js
-.todo.txt
-.claspignore
-.gitignore
+*.*
 
